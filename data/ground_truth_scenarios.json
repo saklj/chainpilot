@@ -1,0 +1,62 @@
+[
+  {
+    "scenario_id": "GT-01",
+    "material_pn": "PN-00211",
+    "construction": "单源+低库存+在途不足",
+    "expected_gap_window": "未来 1–4 天"
+  },
+  {
+    "scenario_id": "GT-02",
+    "material_pn": "PN-00212",
+    "construction": "单源+低库存+在途不足",
+    "expected_gap_window": "未来 1–4 天"
+  },
+  {
+    "scenario_id": "GT-03",
+    "material_pn": "PN-00213",
+    "construction": "单源+低库存+在途不足",
+    "expected_gap_window": "未来 1–4 天"
+  },
+  {
+    "scenario_id": "GT-04",
+    "material_pn": "PN-00214",
+    "construction": "单源+低库存+在途不足",
+    "expected_gap_window": "未来 1–4 天"
+  },
+  {
+    "scenario_id": "GT-05",
+    "material_pn": "PN-00001",
+    "construction": "共用料高需求+库存薄",
+    "expected_gap_window": "未来 1–4 天"
+  },
+  {
+    "scenario_id": "GT-06",
+    "material_pn": "PN-00002",
+    "construction": "共用料高需求+库存薄",
+    "expected_gap_window": "未来 1–4 天"
+  },
+  {
+    "scenario_id": "GT-07",
+    "material_pn": "PN-00003",
+    "construction": "共用料高需求+库存薄",
+    "expected_gap_window": "未来 1–4 天"
+  },
+  {
+    "scenario_id": "GT-08",
+    "material_pn": "PN-00271",
+    "construction": "长交期+零在途",
+    "expected_gap_window": "未来 1–4 天"
+  },
+  {
+    "scenario_id": "GT-09",
+    "material_pn": "PN-00272",
+    "construction": "长交期+零在途",
+    "expected_gap_window": "未来 1–4 天"
+  },
+  {
+    "scenario_id": "GT-10",
+    "material_pn": "PN-00273",
+    "construction": "长交期+零在途",
+    "expected_gap_window": "未来 1–4 天"
+  }
+]
