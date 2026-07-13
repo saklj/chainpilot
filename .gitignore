@@ -18,6 +18,7 @@ out/
 
 # data artifacts (rebuild via data/scripts/build_db.py)
 data/raw/
+data/processed/
 data/chainpilot.duckdb
 *.duckdb.wal
 

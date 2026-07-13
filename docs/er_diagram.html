@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ChainPilot 数据库 ER 图</title>
+</head>
+<body>
+<style>
+:root{
+  --bg:#F2F4F6; --card:#FFFFFF; --ink:#1C2733; --muted:#5D6C7B; --line:#D3DBE3;
+  --hair:#E4E9EE;
+  --real:#0E8A6D; --sim:#3563C9; --eng:#C07414;
+  --real-tint:rgba(14,138,109,.09); --sim-tint:rgba(53,99,201,.08); --eng-tint:rgba(192,116,20,.10);
+  --wire:.5; --shadow:0 1px 2px rgba(28,39,51,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#10151B; --card:#1A222C; --ink:#E8EDF2; --muted:#93A2B1; --line:#2C3742;
+    --hair:#242E39;
+    --real:#2FB18F; --sim:#6E96E8; --eng:#DFA04C;
+    --real-tint:rgba(47,177,143,.12); --sim-tint:rgba(110,150,232,.12); --eng-tint:rgba(223,160,76,.13);
+    --wire:.55; --shadow:0 1px 2px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10151B; --card:#1A222C; --ink:#E8EDF2; --muted:#93A2B1; --line:#2C3742;
+  --hair:#242E39;
+  --real:#2FB18F; --sim:#6E96E8; --eng:#DFA04C;
+  --real-tint:rgba(47,177,143,.12); --sim-tint:rgba(110,150,232,.12); --eng-tint:rgba(223,160,76,.13);
+  --wire:.55; --shadow:0 1px 2px rgba(0,0,0,.3);
+}
+:root[data-theme="light"]{
+  --bg:#F2F4F6; --card:#FFFFFF; --ink:#1C2733; --muted:#5D6C7B; --line:#D3DBE3;
+  --hair:#E4E9EE;
+  --real:#0E8A6D; --sim:#3563C9; --eng:#C07414;
+  --real-tint:rgba(14,138,109,.09); --sim-tint:rgba(53,99,201,.08); --eng-tint:rgba(192,116,20,.10);
+  --wire:.5; --shadow:0 1px 2px rgba(28,39,51,.06);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Avenir Next","Helvetica Neue","PingFang SC","Hiragino Sans GB",system-ui,sans-serif;
+  font-size:15px; line-height:1.55;
+}
+.page{max-width:1200px; margin:0 auto; padding:36px 28px 56px}
+.eyebrow{
+  font-size:11px; letter-spacing:.18em; color:var(--muted); text-transform:uppercase;
+  margin:0 0 6px; font-weight:600;
+}
+h1{font-size:26px; font-weight:600; margin:0 0 4px; text-wrap:balance}
+.sub{color:var(--muted); margin:0 0 22px; max-width:62ch}
+.legend{
+  display:flex; flex-wrap:wrap; gap:10px 22px; align-items:center;
+  padding:12px 0 18px; border-bottom:1px solid var(--hair); margin-bottom:26px;
+  font-size:13px; color:var(--muted);
+}
+.key{display:inline-flex; align-items:center; gap:7px}
+.sw{width:10px; height:10px; border-radius:2px; flex:none}
+.sw.real{background:var(--real)} .sw.sim{background:var(--sim)} .sw.eng{background:var(--eng)}
+.arrownote{display:inline-flex; align-items:center; gap:7px}
+.arrownote svg{flex:none}
+.scroller{overflow-x:auto; padding-bottom:6px}
+.diagram{
+  position:relative; min-width:1080px;
+  display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:0 46px; padding:6px 2px;
+}
+#wires{position:absolute; inset:0; width:100%; height:100%; pointer-events:none; overflow:visible}
+#wires path{fill:none; stroke-width:1.4; opacity:var(--wire); transition:opacity .15s ease}
+#wires .head{stroke:none; opacity:var(--wire); transition:opacity .15s ease}
+#wires .dot{opacity:var(--wire); transition:opacity .15s ease}
+.diagram.focused #wires .w{opacity:.08}
+.diagram.focused #wires .w.hot{opacity:.95}
+.diagram.focused .tbl{opacity:.35; transition:opacity .15s ease}
+.diagram.focused .tbl.lit{opacity:1}
+.col{display:flex; flex-direction:column; gap:30px; justify-content:center; position:relative; z-index:1}
+.colhead{
+  font-size:11px; letter-spacing:.16em; text-transform:uppercase; font-weight:600;
+  color:var(--muted); text-align:center; margin:0 0 -12px;
+}
+.tbl{
+  background:var(--card); border:1px solid var(--line); border-radius:6px;
+  box-shadow:var(--shadow); transition:opacity .15s ease;
+}
+.tbl>header{
+  display:flex; align-items:baseline; gap:8px; padding:9px 12px 8px;
+  border-bottom:1px solid var(--hair); border-radius:6px 6px 0 0;
+}
+.tbl[data-layer="real"]>header{background:var(--real-tint)}
+.tbl[data-layer="sim"]>header{background:var(--sim-tint)}
+.tbl[data-layer="eng"]>header{background:var(--eng-tint)}
+.tbl>header .sw{align-self:center}
+.tbl h3{
+  margin:0; font-size:13.5px; font-weight:650;
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+.tbl .cn{font-size:12px; color:var(--muted); margin-left:auto; white-space:nowrap}
+.tbl ul{list-style:none; margin:0; padding:5px 0}
+.tbl li{
+  display:flex; align-items:baseline; gap:8px; padding:2.5px 12px; font-size:12.5px;
+}
+.tbl li code{
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size:12px;
+}
+.ty{color:var(--muted); font-size:11px}
+.badges{margin-left:auto; display:inline-flex; gap:4px}
+.badges b{
+  font-size:9.5px; font-weight:650; letter-spacing:.05em; line-height:1;
+  padding:2.5px 5px; border-radius:3px;
+}
+b.pk{color:var(--ink); border:1px solid var(--line); background:transparent}
+b.fk{color:var(--bg)}
+.tbl[data-layer="real"] b.fk{background:var(--real)}
+.tbl[data-layer="sim"] b.fk{background:var(--sim)}
+.tbl[data-layer="eng"] b.fk{background:var(--eng)}
+.tbl>footer{
+  padding:6px 12px 8px; border-top:1px solid var(--hair);
+  font-size:11px; color:var(--muted); font-variant-numeric:tabular-nums;
+}
+.notes{
+  margin-top:30px; padding-top:18px; border-top:1px solid var(--hair);
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px 28px;
+}
+.notes h4{margin:0 0 4px; font-size:13px; font-weight:650}
+.notes p{margin:0; font-size:13px; color:var(--muted); max-width:48ch}
+@media (prefers-reduced-motion: reduce){
+  *{transition:none !important}
+}
+</style>
+
+<div class="page">
+  <p class="eyebrow">ChainPilot · 数据底座 · docs/01_数据字典.md v1.0</p>
+  <h1>数据库 ER 图 — 13 张表的关系全景</h1>
+  <p class="sub">从左到右就是供应链的因果链：需求发生 → 落到成品 → 按配方展开成物料 → 追到供应商。悬停任意表可高亮它的全部关联。</p>
+
+  <div class="legend">
+    <span class="key"><span class="sw real"></span>真实数据（Kaggle M5）</span>
+    <span class="key"><span class="sw sim"></span>模拟制造层（seed=42）</span>
+    <span class="key"><span class="sw eng"></span>引擎写回（M2/M3 产物）</span>
+    <span class="arrownote">
+      <svg width="34" height="10" viewBox="0 0 34 10"><circle cx="3" cy="5" r="2.4" fill="currentColor"/><line x1="5" y1="5" x2="26" y2="5" stroke="currentColor" stroke-width="1.4"/><polygon points="33,5 26,1.8 26,8.2" fill="currentColor"/></svg>
+      连线：外键 → 主键（多对一，箭头指向主数据）
+    </span>
+  </div>
+
+  <div class="scroller">
+  <div class="diagram" id="diagram">
+    <svg id="wires" aria-hidden="true"></svg>
+
+    <div class="col">
+      <p class="colhead">需求与日历</p>
+
+      <article class="tbl" data-layer="real" id="t-calendar">
+        <header><span class="sw real"></span><h3>calendar</h3><span class="cn">日历与事件</span></header>
+        <ul>
+          <li id="f-calendar-date"><code>date</code><span class="ty">DATE</span><span class="badges"><b class="pk">PK</b></span></li>
+          <li><code>weekday</code><span class="ty">VARCHAR</span></li>
+          <li><code>event_name</code><span class="ty">VARCHAR ∅</span></li>
+          <li><code>is_weekend</code><span class="ty">BOOLEAN</span></li>
+        </ul>
+        <footer>~1,969 天 · M5 原始字段</footer>
+      </article>
+
+      <article class="tbl" data-layer="real" id="t-sales_daily">
+        <header><span class="sw real"></span><h3>sales_daily</h3><span class="cn">成品日销量</span></header>
+        <ul>
+          <li id="f-sales_daily-sku_id"><code>sku_id</code><span class="ty">VARCHAR</span><span class="badges"><b class="pk">PK</b><b class="fk">FK</b></span></li>
+          <li id="f-sales_daily-date"><code>date</code><span class="ty">DATE</span><span class="badges"><b class="pk">PK</b><b class="fk">FK</b></span></li>
+          <li><code>units_sold</code><span class="ty">INTEGER</span></li>
+        </ul>
+        <footer>≈110,000 行 · 全项目需求源头</footer>
+      </article>
+
+      <article class="tbl" data-layer="real" id="t-prices">
+        <header><span class="sw real"></span><h3>prices</h3><span class="cn">周售价</span></header>
+        <ul>
+          <li id="f-prices-sku_id"><code>sku_id</code><span class="ty">VARCHAR</span><span class="badges"><b class="fk">FK</b></span></li>
+          <li><code>week_start</code><span class="ty">DATE</span></li>
+          <li><code>sell_price</code><span class="ty">DECIMAL</span></li>
+        </ul>
+        <footer>周粒度 · 预测特征之一</footer>
+      </article>
+    </div>
+
+    <div class="col">
+      <p class="colhead">成品与预测</p>
+
+      <article class="tbl" data-layer="sim" id="t-products">
+        <header><span class="sw sim"></span><h3>products</h3><span class="cn">成品主数据</span></header>
+        <ul>
+          <li id="f-products-sku_id"><code>sku_id</code><span class="ty">VARCHAR</span><span class="badges"><b class="pk">PK</b></span></li>
+          <li><code>product_name</code><span class="ty">VARCHAR</span></li>
+          <li><code>product_family</code><span class="ty">VARCHAR</span></li>
+        </ul>
+        <footer>~100 行 · 左侧枢纽</footer>
+      </article>
+
+      <article class="tbl" data-layer="eng" id="t-forecast_daily">
+        <header><span class="sw eng"></span><h3>forecast_daily</h3><span class="cn">需求预测 · M2</span></header>
+        <ul>
+          <li id="f-forecast_daily-sku_id"><code>sku_id</code><span class="ty">VARCHAR</span><span class="badges"><b class="pk">PK</b><b class="fk">FK</b></span></li>
+          <li><code>date</code><span class="ty">DATE</span><span class="badges"><b class="pk">PK</b></span></li>
+          <li><code>model_name</code><span class="ty">VARCHAR</span><span class="badges"><b class="pk">PK</b></span></li>
+          <li><code>yhat</code><span class="ty">DECIMAL</span></li>
+        </ul>
+        <footer>≈8,400 行/次 · 三模型并排存</footer>
+      </article>
+
+      <article class="tbl" data-layer="eng" id="t-forecast_metrics">
+        <header><span class="sw eng"></span><h3>forecast_metrics</h3><span class="cn">回测成绩单 · M2</span></header>
+        <ul>
+          <li><code>model_name</code><span class="ty">VARCHAR</span></li>
+          <li><code>fold</code><span class="ty">INTEGER</span></li>
+          <li><code>mape</code><span class="ty">DECIMAL</span></li>
+          <li><code>wrmsse</code><span class="ty">DECIMAL</span></li>
+        </ul>
+        <footer>模型 × 折 · 无外键（独立成绩单）</footer>
+      </article>
+    </div>
+
+    <div class="col">
+      <p class="colhead">物料与库存</p>
+
+      <article class="tbl" data-layer="sim" id="t-materials">
+        <header><span class="sw sim"></span><h3>materials</h3><span class="cn">物料主数据</span></header>
+        <ul>
+          <li id="f-materials-material_pn"><code>material_pn</code><span class="ty">VARCHAR</span><span class="badges"><b class="pk">PK</b></span></li>
+          <li><code>material_name</code><span class="ty">VARCHAR</span></li>
+          <li><code>commodity</code><span class="ty">VARCHAR</span></li>
+          <li><code>item_group</code><span class="ty">VARCHAR</span></li>
+          <li><code>unit_cost</code><span class="ty">DECIMAL</span></li>
+        </ul>
+        <footer>~300 行 · 右侧枢纽</footer>
+      </article>
+
+      <article class="tbl" data-layer="sim" id="t-bom">
+        <header><span class="sw sim"></span><h3>bom</h3><span class="cn">物料清单（配方）</span></header>
+        <ul>
+          <li id="f-bom-sku_id"><code>sku_id</code><span class="ty">VARCHAR</span><span class="badges"><b class="pk">PK</b><b class="fk">FK</b></span></li>
+          <li id="f-bom-material_pn"><code>material_pn</code><span class="ty">VARCHAR</span><span class="badges"><b class="pk">PK</b><b class="fk">FK</b></span></li>
+          <li><code>qty_per_unit</code><span class="ty">DECIMAL</span></li>
+        </ul>
+        <footer>~550 行 · 20% 共用料</footer>
+      </article>
+
+      <article class="tbl" data-layer="sim" id="t-inventory_onhand">
+        <header><span class="sw sim"></span><h3>inventory_onhand</h3><span class="cn">库存周快照</span></header>
+        <ul>
+          <li id="f-inventory_onhand-material_pn"><code>material_pn</code><span class="ty">VARCHAR</span><span class="badges"><b class="pk">PK</b><b class="fk">FK</b></span></li>
+          <li><code>snapshot_date</code><span class="ty">DATE</span><span class="badges"><b class="pk">PK</b></span></li>
+          <li><code>qty_onhand</code><span class="ty">INTEGER</span></li>
+        </ul>
+        <footer>≈47,000 行 · 156 周历史</footer>
+      </article>
+
+      <article class="tbl" data-layer="eng" id="t-material_risk">
+        <header><span class="sw eng"></span><h3>material_risk</h3><span class="cn">风险分级 · M3</span></header>
+        <ul>
+          <li id="f-material_risk-material_pn"><code>material_pn</code><span class="ty">VARCHAR</span><span class="badges"><b class="pk">PK</b><b class="fk">FK</b></span></li>
+          <li><code>eval_date</code><span class="ty">DATE</span><span class="badges"><b class="pk">PK</b></span></li>
+          <li><code>doi_days</code><span class="ty">DECIMAL</span></li>
+          <li><code>lt_coverage</code><span class="ty">DECIMAL</span></li>
+          <li><code>supplier_concentration</code><span class="ty">DECIMAL</span></li>
+          <li><code>gap_qty</code><span class="ty">INTEGER</span></li>
+          <li><code>gap_date</code><span class="ty">DATE ∅</span></li>
+          <li><code>risk_level</code><span class="ty">VARCHAR</span></li>
+          <li><code>risk_reasons</code><span class="ty">VARCHAR</span></li>
+        </ul>
+        <footer>~300 行/评估日 · 结论 + 证据同存</footer>
+      </article>
+    </div>
+
+    <div class="col">
+      <p class="colhead">供应商与采购</p>
+
+      <article class="tbl" data-layer="sim" id="t-suppliers">
+        <header><span class="sw sim"></span><h3>suppliers</h3><span class="cn">供应商主数据</span></header>
+        <ul>
+          <li id="f-suppliers-supplier_id"><code>supplier_id</code><span class="ty">VARCHAR</span><span class="badges"><b class="pk">PK</b></span></li>
+          <li><code>supplier_name</code><span class="ty">VARCHAR</span></li>
+          <li><code>region</code><span class="ty">VARCHAR</span></li>
+        </ul>
+        <footer>~40 行 · CN/SEA/US/EU</footer>
+      </article>
+
+      <article class="tbl" data-layer="sim" id="t-supply_split">
+        <header><span class="sw sim"></span><h3>supply_split</h3><span class="cn">供应份额</span></header>
+        <ul>
+          <li id="f-supply_split-material_pn"><code>material_pn</code><span class="ty">VARCHAR</span><span class="badges"><b class="pk">PK</b><b class="fk">FK</b></span></li>
+          <li id="f-supply_split-supplier_id"><code>supplier_id</code><span class="ty">VARCHAR</span><span class="badges"><b class="pk">PK</b><b class="fk">FK</b></span></li>
+          <li><code>split_pct</code><span class="ty">DECIMAL</span></li>
+          <li><code>lead_time_days</code><span class="ty">INTEGER</span></li>
+          <li><code>moq</code><span class="ty">INTEGER</span></li>
+        </ul>
+        <footer>~520 行 · 每 PN 份额合计 = 100</footer>
+      </article>
+
+      <article class="tbl" data-layer="sim" id="t-open_po">
+        <header><span class="sw sim"></span><h3>open_po</h3><span class="cn">在途采购单</span></header>
+        <ul>
+          <li><code>po_id</code><span class="ty">VARCHAR</span><span class="badges"><b class="pk">PK</b></span></li>
+          <li id="f-open_po-material_pn"><code>material_pn</code><span class="ty">VARCHAR</span><span class="badges"><b class="fk">FK</b></span></li>
+          <li id="f-open_po-supplier_id"><code>supplier_id</code><span class="ty">VARCHAR</span><span class="badges"><b class="fk">FK</b></span></li>
+          <li><code>qty</code><span class="ty">INTEGER</span></li>
+          <li><code>eta_date</code><span class="ty">DATE</span></li>
+        </ul>
+        <footer>~1,500 行 · eta_date 驱动余额滚动</footer>
+      </article>
+    </div>
+  </div>
+  </div>
+
+  <div class="notes">
+    <div>
+      <h4>怎么读这张图</h4>
+      <p>每条线从一张表的外键（FK）出发，箭头指向另一张表的主键（PK），含义是"多对一"：多天销量对应同一个成品，多条配方对应同一颗物料。</p>
+    </div>
+    <div>
+      <h4>两个枢纽</h4>
+      <p>products 和 materials 是全库的两个枢纽，bom 是它们之间的桥（多对多关系表）。MRP 展开视图 v_material_demand_daily = forecast_daily ⋈ bom（见数据字典 §3，图中未画）。</p>
+    </div>
+    <div>
+      <h4>颜色 = 数据来源</h4>
+      <p>绿色三张来自 Kaggle M5 真实数据；蓝色七张由生成器按 seed=42 模拟；琥珀色三张是 M2/M3 引擎的计算产物，M1 阶段只建空表。</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const layer = {
+    calendar:'real', sales_daily:'real', prices:'real',
+    products:'sim', materials:'sim', suppliers:'sim', bom:'sim',
+    supply_split:'sim', inventory_onhand:'sim', open_po:'sim',
+    forecast_daily:'eng', forecast_metrics:'eng', material_risk:'eng'
+  };
+  const edges = [
+    ['sales_daily','sku_id','products','sku_id'],
+    ['sales_daily','date','calendar','date'],
+    ['prices','sku_id','products','sku_id'],
+    ['forecast_daily','sku_id','products','sku_id'],
+    ['bom','sku_id','products','sku_id'],
+    ['bom','material_pn','materials','material_pn'],
+    ['supply_split','material_pn','materials','material_pn'],
+    ['supply_split','supplier_id','suppliers','supplier_id'],
+    ['inventory_onhand','material_pn','materials','material_pn'],
+    ['open_po','material_pn','materials','material_pn'],
+    ['open_po','supplier_id','suppliers','supplier_id'],
+    ['material_risk','material_pn','materials','material_pn']
+  ];
+  const diagram = document.getElementById('diagram');
+  const svg = document.getElementById('wires');
+  const NS = 'http://www.w3.org/2000/svg';
+
+  function colorOf(t){
+    return getComputedStyle(document.documentElement)
+      .getPropertyValue('--' + layer[t]).trim();
+  }
+
+  function draw(){
+    svg.innerHTML = '';
+    const dRect = diagram.getBoundingClientRect();
+    edges.forEach(function(e){
+      const ft = e[0], ff = e[1], tt = e[2], tf = e[3];
+      const a = document.getElementById('f-' + ft + '-' + ff);
+      const b = document.getElementById('f-' + tt + '-' + tf);
+      if(!a || !b) return;
+      const r1 = a.getBoundingClientRect(), r2 = b.getBoundingClientRect();
+      const y1 = r1.top + r1.height/2 - dRect.top;
+      const y2 = r2.top + r2.height/2 - dRect.top;
+      let x1, x2, d, tip;
+      if(r2.left > r1.right + 8){            // target to the right
+        x1 = r1.right - dRect.left; x2 = r2.left - dRect.left;
+        const cp = Math.max((x2-x1)*.45, 18);
+        d = 'M'+x1+','+y1+' C'+(x1+cp)+','+y1+' '+(x2-cp)+','+y2+' '+x2+','+y2;
+        tip = [[x2,y2],[x2-7,y2-3.5],[x2-7,y2+3.5]];
+      } else if(r2.right < r1.left - 8){     // target to the left
+        x1 = r1.left - dRect.left; x2 = r2.right - dRect.left;
+        const cp = Math.max((x1-x2)*.45, 18);
+        d = 'M'+x1+','+y1+' C'+(x1-cp)+','+y1+' '+(x2+cp)+','+y2+' '+x2+','+y2;
+        tip = [[x2,y2],[x2+7,y2-3.5],[x2+7,y2+3.5]];
+      } else {                               // same column: loop out the right side
+        x1 = r1.right - dRect.left; x2 = r2.right - dRect.left;
+        const bx = Math.max(x1,x2) + 30;
+        d = 'M'+x1+','+y1+' C'+bx+','+y1+' '+bx+','+y2+' '+x2+','+y2;
+        tip = [[x2,y2],[x2+7,y2-3.5],[x2+7,y2+3.5]];
+      }
+      const col = colorOf(ft);
+      const g = document.createElementNS(NS,'g');
+      g.setAttribute('class','w');
+      g.dataset.tables = ft + ' ' + tt;
+
+      const p = document.createElementNS(NS,'path');
+      p.setAttribute('d', d);
+      p.setAttribute('stroke', col);
+      g.appendChild(p);
+
+      const head = document.createElementNS(NS,'polygon');
+      head.setAttribute('points', tip.map(function(pt){return pt.join(',');}).join(' '));
+      head.setAttribute('fill', col);
+      head.setAttribute('class','head');
+      g.appendChild(head);
+
+      const dot = document.createElementNS(NS,'circle');
+      dot.setAttribute('cx', x1); dot.setAttribute('cy', y1);
+      dot.setAttribute('r', 2.4); dot.setAttribute('fill', col);
+      dot.setAttribute('class','dot');
+      g.appendChild(dot);
+
+      svg.appendChild(g);
+    });
+  }
+
+  // hover focus
+  const related = {};
+  edges.forEach(function(e){
+    (related[e[0]] = related[e[0]] || new Set()).add(e[2]);
+    (related[e[2]] = related[e[2]] || new Set()).add(e[0]);
+  });
+  document.querySelectorAll('.tbl').forEach(function(card){
+    const name = card.id.slice(2);
+    card.addEventListener('mouseenter', function(){
+      diagram.classList.add('focused');
+      card.classList.add('lit');
+      (related[name] || []).forEach(function(n){
+        const el = document.getElementById('t-' + n);
+        if(el) el.classList.add('lit');
+      });
+      svg.querySelectorAll('.w').forEach(function(g){
+        if(g.dataset.tables.split(' ').indexOf(name) !== -1) g.classList.add('hot');
+      });
+    });
+    card.addEventListener('mouseleave', function(){
+      diagram.classList.remove('focused');
+      document.querySelectorAll('.tbl.lit').forEach(function(el){el.classList.remove('lit');});
+      svg.querySelectorAll('.w.hot').forEach(function(g){g.classList.remove('hot');});
+    });
+  });
+
+  // redraw wires when theme flips (colors are read from CSS vars at draw time)
+  new MutationObserver(draw).observe(document.documentElement,
+    {attributes:true, attributeFilter:['data-theme']});
+  if(window.matchMedia){
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', draw);
+  }
+  window.addEventListener('resize', draw);
+  requestAnimationFrame(draw);
+  setTimeout(draw, 150);
+})();
+</script>
+</body>
+</html>
