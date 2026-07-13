@@ -1,0 +1,25 @@
+# env & secrets
+.env
+.env.local
+*.local
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+
+# node
+node_modules/
+.next/
+out/
+
+# data artifacts (rebuild via data/scripts/build_db.py)
+data/raw/
+data/chainpilot.duckdb
+*.duckdb.wal
+
+# misc
+.DS_Store
