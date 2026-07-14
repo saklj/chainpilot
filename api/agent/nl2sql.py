@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import string
 import sys
 from collections.abc import Sequence
 from dataclasses import dataclass
@@ -171,7 +172,9 @@ Output rules:
 def generate_sql(question: str, llm: ChatLLM) -> NL2SQLResult:
     """Ask the LLM and strictly classify its fenced-SQL response."""
     response = llm.chat(build_prompt(question), temperature=0.0, timeout=30)
-    raw = response.content.strip()
+    raw = response.content.strip(
+        string.whitespace + string.punctuation + "，。！？；：、…（）【】《》“”‘’"
+    )
     if raw == "NO_ANSWER":
         return NL2SQLResult("no_answer", None, response.content, response.usage)
     blocks = SQL_FENCE.findall(response.content)
