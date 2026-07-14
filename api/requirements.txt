@@ -2,6 +2,8 @@ fastapi==0.139.0
 uvicorn[standard]==0.51.0
 pydantic==2.13.4
 python-dotenv==1.2.2
-pandas==3.0.3
-numpy==2.5.1
+pandas==2.3.3
+numpy==2.4.6
 duckdb==1.5.4
+statsforecast==2.0.3
+lightgbm==4.6.0
