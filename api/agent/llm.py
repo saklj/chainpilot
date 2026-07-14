@@ -14,6 +14,7 @@ from openai import OpenAI
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 load_dotenv(REPO_ROOT / ".env")
+DEFAULT_DEEPSEEK_MODEL = "deepseek-v4-flash"
 
 
 class LLMConfigurationError(RuntimeError):
@@ -53,6 +54,7 @@ class DeepSeekClient:
         *,
         api_key: str | None = None,
         base_url: str | None = None,
+        model: str | None = None,
         sleep: Callable[[float], None] = time.sleep,
     ) -> None:
         if client is None:
@@ -66,6 +68,11 @@ class DeepSeekClient:
                 base_url=base_url or os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com"),
                 max_retries=0,
             )
+        self.model = (
+            model
+            if model is not None
+            else os.getenv("DEEPSEEK_MODEL") or DEFAULT_DEEPSEEK_MODEL
+        )
         self._client = client
         self._sleep = sleep
 
@@ -83,7 +90,7 @@ class DeepSeekClient:
         for attempt in range(2):
             try:
                 response = self._client.chat.completions.create(
-                    model="deepseek-chat",
+                    model=self.model,
                     messages=list(messages),
                     temperature=0.0,
                     timeout=timeout,
