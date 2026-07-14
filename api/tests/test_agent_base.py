@@ -156,7 +156,7 @@ def test_prompt_includes_schema_glossary_rules_and_few_shots() -> None:
     assert system.count("- ") >= 10
     assert "latest snapshot_date" in system
     assert "eval_date = (SELECT max(eval_date) FROM material_risk)" in system
-    assert len(FEW_SHOTS) == 9
+    assert len(FEW_SHOTS) == 10
     assert len(messages) == 2 * len(FEW_SHOTS) + 2
 
 
@@ -201,14 +201,37 @@ def test_deepseek_client_is_injectable_and_retries_once() -> None:
     result = DeepSeekClient(client=sdk, sleep=lambda _: None).chat([{"role": "user", "content": "x"}])
     assert result == LLMResult("done", TokenUsage(7, 2))
     assert len(calls) == 2
-    assert all(call["model"] == "deepseek-chat" for call in calls)
+    assert all(call["model"] == "deepseek-v4-flash" for call in calls)
     assert all(call["temperature"] == 0.0 for call in calls)
+
+
+def test_deepseek_client_uses_default_model(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("DEEPSEEK_MODEL", raising=False)
+    sdk = SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace()))
+    assert DeepSeekClient(client=sdk).model == "deepseek-v4-flash"
+
+
+def test_deepseek_client_model_can_be_overridden_by_environment(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("DEEPSEEK_MODEL", "deepseek-env-model")
+    sdk = SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace()))
+    assert DeepSeekClient(client=sdk).model == "deepseek-env-model"
+
+
+def test_deepseek_client_constructor_model_overrides_environment(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("DEEPSEEK_MODEL", "deepseek-env-model")
+    sdk = SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace()))
+    client = DeepSeekClient(client=sdk, model="deepseek-constructor-model")
+    assert client.model == "deepseek-constructor-model"
 
 
 @pytest.mark.skipif(not REAL_DB.exists(), reason="built ChainPilot database is absent")
 def test_few_shot_sql_executes_against_real_database() -> None:
     sql_examples = [SQL_FENCE.findall(example.answer)[0].strip() for example in FEW_SHOTS[:-1]]
-    assert len(sql_examples) == 8
+    assert len(sql_examples) == 9
     for sql in sql_examples:
         result = execute_safe(sql)
         assert result.ok, result.rejected_reason

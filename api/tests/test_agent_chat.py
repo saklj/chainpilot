@@ -158,6 +158,60 @@ def test_guardrail_exempts_row_count_ordinals_and_returned_year() -> None:
     assert verdict.checked_count == 0
 
 
+@pytest.mark.parametrize("ordinal", ["1. 第一项", "**1.** 第一项", "1）第一项"])
+def test_guardrail_exempts_supported_list_ordinals(ordinal: str) -> None:
+    verdict = verify_answer(ordinal, result(("A",), ("B",)), "查询数据")
+    assert verdict.verdict == "pass"
+    assert verdict.checked_count == 0
+
+
+def test_guardrail_exempts_bounded_counts_with_quantifiers() -> None:
+    verdict = verify_answer("其余41个物料也需关注。", result(*(("A",),) * 90), "查询数据")
+    assert verdict.verdict == "pass"
+    assert verdict.checked_count == 0
+
+
+def test_guardrail_rejects_count_above_row_count() -> None:
+    verdict = verify_answer("共有3个物料。", result(("A",), ("B",)), "查询数据")
+    assert verdict.verdict == "fail"
+    assert verdict.unmatched == ["3"]
+
+
+@pytest.mark.parametrize("answer", ["缺口大于 0。", "缺口 > 0。", "缺口不为0。"])
+def test_guardrail_exempts_literal_zero_comparison(answer: str) -> None:
+    verdict = verify_answer(answer, result(("A",)), "查询数据")
+    assert verdict.verdict == "pass"
+    assert verdict.checked_count == 0
+
+
+def test_guardrail_exempts_numbers_and_dates_from_owned_prompt_text() -> None:
+    verdict = verify_answer(
+        "按未来28天需求计算，截止日期为2016-05-22。",
+        result(("A",)),
+        "解释口径",
+        exempt_text="公式使用未来28天需求，截止日期为2016-05-22。",
+    )
+    assert verdict.verdict == "pass"
+    assert verdict.checked_count == 0
+
+
+def test_guardrail_rejects_number_outside_owned_prompt_text() -> None:
+    verdict = verify_answer(
+        "按未来28天需求计算，结果是999。",
+        result(("A",)),
+        "解释口径",
+        exempt_text="公式使用未来28天需求。",
+    )
+    assert verdict.verdict == "fail"
+    assert verdict.unmatched == ["999"]
+
+
+def test_guardrail_still_rejects_unqualified_zero_and_body_number() -> None:
+    verdict = verify_answer("库存是0，另有999件。", result(("A",)), "查询数据")
+    assert verdict.verdict == "fail"
+    assert verdict.unmatched == ["0", "999"]
+
+
 def test_guardrail_all_evidence_matches() -> None:
     safe_result = result((13153, Decimal("0.355"), date(2016, 5, 25)))
     verdict = verify_answer(
@@ -310,3 +364,72 @@ def test_real_chat_smoke(question: str) -> None:
     response = answer_question(question, DeepSeekClient())
     assert not response.refused
     assert response.verdict is not None and response.verdict.verdict == "pass"
+
+
+def test_guardrail_matches_month_day_date_against_evidence() -> None:
+    verdict = verify_answer(
+        "预计 5月25日 断料，缺口 434。",
+        result((434, date(2016, 5, 25))),
+        "什么时候断料？",
+    )
+    assert verdict.verdict == "pass"
+    assert verdict.matched["5月25日"] == (0, 1)
+
+
+def test_guardrail_rejects_month_day_absent_from_evidence() -> None:
+    verdict = verify_answer(
+        "预计 7月1日 断料。",
+        result((434, date(2016, 5, 25))),
+        "什么时候断料？",
+    )
+    assert verdict.verdict == "fail"
+    assert verdict.unmatched == ["7月1日"]
+
+
+def test_guardrail_exempts_top_n_presentation_counts() -> None:
+    verdict = verify_answer(
+        "前 3 名如下；Top 2 的缺口都超过 400。",
+        result((434,), (410,), (300,)),
+        "看看缺口排名",
+    )
+    assert verdict.verdict == "fail"  # 400 是编造阈值，仍须拦
+    assert verdict.unmatched == ["400"]
+    assert "3" not in verdict.unmatched and "2" not in verdict.unmatched
+
+
+def test_guardrail_top_n_count_beyond_rows_still_fails() -> None:
+    verdict = verify_answer(
+        "前 9 名如下。",
+        result((434,), (410,)),
+        "看看缺口排名",
+    )
+    assert verdict.verdict == "fail"
+    assert verdict.unmatched == ["9"]
+
+
+def test_guardrail_matches_dash_month_day_and_result_identifier_digits() -> None:
+    verdict = verify_answer(
+        "SUP-040（供应商 40）预计 05-25 断料。",
+        result(("SUP-040", date(2016, 5, 25))),
+        "谁会断料？",
+    )
+    assert verdict.verdict == "pass"
+
+
+def test_guardrail_still_rejects_bare_digits_without_identifier_cell() -> None:
+    verdict = verify_answer(
+        "大约有 40 件缺口。",
+        result(("Carton 271", 434)),
+        "缺口多少？",
+    )
+    assert verdict.verdict == "fail"
+    assert verdict.unmatched == ["40"]
+
+
+def test_guardrail_matches_slash_month_day_and_spaced_quantifier() -> None:
+    verdict = verify_answer(
+        "预计 5/25 断料，共 2 个物料受影响。",
+        result(("PN-00003", date(2016, 5, 25)), ("PN-00001", date(2016, 5, 25))),
+        "断料情况？",
+    )
+    assert verdict.verdict == "pass"

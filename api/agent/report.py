@@ -346,7 +346,10 @@ def _narrative_messages(section: str, data: ReportData) -> list[dict[str, str]]:
             "content": (
                 "你是 ChainPilot 供应风险周报撰写助手。只输出一段简短中文，"
                 "只能引用给定 JSON 中的数字和事实；不许计算新数字，"
-                "不许推测，不许使用数据之外的建议依据。"
+                "不要给出任何自行合计或计数得到的数字；"
+                "不要在叙述中使用内部规则码（如 GAP_BEFORE_LT、LOW_DOI），"
+                "风险原因用通俗中文表述；不许推测，"
+                "不许使用数据之外的建议依据。"
             ),
         },
         {"role": "user", "content": f"{section_instruction}\n结构化数据：{payload}"},

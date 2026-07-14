@@ -29,11 +29,13 @@ class GuardrailVerdict:
 
 @dataclass(frozen=True)
 class _Candidate:
-    kind: Literal["number", "percentage", "date"]
+    kind: Literal["number", "percentage", "date", "month_day"]
     display: str
     span: tuple[int, int]
     numeric_values: tuple[Decimal, ...] = ()
     date_value: date | None = None
+    # 无年份日期（"6月17日"）只按 (月, 日) 与证据日期比对
+    month_day: tuple[int, int] | None = None
 
 
 # IDs are categorical evidence rather than quantities. Mask the complete token first so
@@ -47,6 +49,10 @@ ISO_DATE_RE = re.compile(
 CHINESE_DATE_RE = re.compile(
     r"(?<![A-Za-z0-9])(\d{4})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})\s*日"
 )
+# 模型常省略年份（"6月17日"、"05-25"）；只按月日与证据日期比对，避免整答被误拦
+MONTH_DAY_RE = re.compile(r"(?<![A-Za-z0-9])(\d{1,2})\s*月\s*(\d{1,2})\s*日")
+DASH_MONTH_DAY_RE = re.compile(r"(?<![A-Za-z0-9.\-])(\d{1,2})-(\d{1,2})(?![A-Za-z0-9.\-])")
+SLASH_MONTH_DAY_RE = re.compile(r"(?<![A-Za-z0-9./\-])(\d{1,2})/(\d{1,2})(?![A-Za-z0-9./\-])")
 NUMBER_RE = re.compile(
     r"(?<![A-Za-z0-9_])"
     r"(?P<number>(?:±|[+\-−])?(?:\d{1,3}(?:[,，]\d{3})+|\d+)(?:\.\d+)?)"
@@ -125,6 +131,21 @@ def _extract_candidates(
                 _Candidate("date", value.isoformat(), span, date_value=value)
             )
 
+    for pattern in (MONTH_DAY_RE, DASH_MONTH_DAY_RE, SLASH_MONTH_DAY_RE):
+        for match in pattern.finditer(masked):
+            span = match.span()
+            if _overlaps(span, date_spans):
+                continue
+            month, day = (int(part) for part in match.groups())
+            if not (1 <= month <= 12 and 1 <= day <= 31):
+                continue
+            date_spans.append(span)
+            candidates.append(
+                _Candidate(
+                    "month_day", f"{month}月{day}日", span, month_day=(month, day)
+                )
+            )
+
     for match in NUMBER_RE.finditer(masked):
         if _overlaps(match.span(), date_spans):
             continue
@@ -201,11 +222,45 @@ def _is_ordinal(text: str, candidate: _Candidate, row_count: int) -> bool:
         return False
     start, end = candidate.span
     before = text[max(0, start - 1) : start]
-    after = text[end : end + 1]
-    return before == "第" or after in {".", "．", "、"}
+    if before == "第":
+        return True
+    line_start = text.rfind("\n", 0, start) + 1
+    line_prefix = text[line_start:start]
+    line_suffix = text[end:]
+    return bool(
+        re.fullmatch(r"\s*(?:[-+*]\s*)?(?:\*\*)?", line_prefix)
+        and re.match(r"(?:\*\*)?[.．、)）:：]", line_suffix)
+    )
 
 
-def verify_answer(answer: str, safe_result: SafeResult, question: str) -> GuardrailVerdict:
+def _is_bounded_count(text: str, candidate: _Candidate, row_count: int) -> bool:
+    """Exempt presentation counts such as ``41个`` when rows support that count."""
+    if candidate.kind != "number" or len(candidate.numeric_values) != 1:
+        return False
+    value = candidate.numeric_values[0]
+    if value != value.to_integral() or not 0 <= value <= row_count:
+        return False
+    start, end = candidate.span
+    if re.match(r"\s{0,2}[个项条家种款位行]", text[end : end + 3]):
+        return True
+    # "前 10"、"Top 3" 是展示范围声明而非数据主张
+    return bool(re.search(r"(?:前|[Tt][Oo][Pp])\s*$", text[:start]))
+
+
+def _is_zero_comparison(text: str, candidate: _Candidate) -> bool:
+    """Exempt only literal zero used as an explicit comparison threshold."""
+    if candidate.kind != "number" or candidate.numeric_values != (Decimal(0),):
+        return False
+    start, _ = candidate.span
+    return bool(re.search(r"(?:大于|超过|不为|非|>|≥)\s*$", text[:start]))
+
+
+def verify_answer(
+    answer: str,
+    safe_result: SafeResult,
+    question: str,
+    exempt_text: str = "",
+) -> GuardrailVerdict:
     """Verify every non-exempt answer number or date against a result-set cell."""
     # Exact descriptive strings copied from result cells are categorical evidence, not new
     # numeric claims. Only mask non-numeric strings of length >=2: a cell containing bare
@@ -231,6 +286,30 @@ def verify_answer(answer: str, safe_result: SafeResult, question: str) -> Guardr
         for candidate in question_candidates
         if candidate.date_value is not None
     }
+    exempt_candidates = _extract_candidates(exempt_text)
+    # 结果集中"标识符形"字符串（SUP-040）的数字部分也豁免：模型改写成"供应商 40"
+    # 不算编造。仅限标识符形单元格，描述性名称（"Carton 271"）的数字仍严格校验。
+    exempt_numbers = (
+        {
+            value
+            for candidate in exempt_candidates
+            for value in candidate.numeric_values
+        }
+        | _identifier_numbers(exempt_text)
+        | _identifier_numbers(" ".join(result_string_literals))
+    )
+    exempt_dates = {
+        candidate.date_value
+        for candidate in exempt_candidates
+        if candidate.date_value is not None
+    }
+    context_month_days = {
+        (value.month, value.day) for value in question_dates | exempt_dates
+    } | {
+        candidate.month_day
+        for candidate in (*question_candidates, *exempt_candidates)
+        if candidate.month_day is not None
+    }
 
     numeric_cells: list[tuple[Decimal, CellCoordinate]] = []
     date_cells: list[tuple[date, CellCoordinate]] = []
@@ -253,8 +332,18 @@ def verify_answer(answer: str, safe_result: SafeResult, question: str) -> Guardr
         # claims newly introduced by the answer, so they are outside evidence verification.
         if candidate.kind == "date" and candidate.date_value in question_dates:
             continue
+        if candidate.kind == "month_day" and candidate.month_day in context_month_days:
+            continue
         if candidate.numeric_values and any(
             value in question_numbers for value in candidate.numeric_values
+        ):
+            continue
+        # Numeric/date text supplied by our own prompt is context, not a new claim made by
+        # the model. This covers glossary formulas and the deterministic truncation notice.
+        if candidate.kind == "date" and candidate.date_value in exempt_dates:
+            continue
+        if candidate.numeric_values and any(
+            value in exempt_numbers for value in candidate.numeric_values
         ):
             continue
 
@@ -263,6 +352,10 @@ def verify_answer(answer: str, safe_result: SafeResult, question: str) -> Guardr
         if candidate.numeric_values == (Decimal(safe_result.row_count),):
             continue
         if _is_ordinal(answer, candidate, safe_result.row_count):
+            continue
+        if _is_bounded_count(answer, candidate, safe_result.row_count):
+            continue
+        if _is_zero_comparison(answer, candidate):
             continue
 
         # A standalone year is permitted when a returned date supplies that exact year; the
@@ -277,7 +370,16 @@ def verify_answer(answer: str, safe_result: SafeResult, question: str) -> Guardr
 
         checked_count += 1
         coordinate: CellCoordinate | None = None
-        if candidate.kind == "date" and candidate.date_value is not None:
+        if candidate.kind == "month_day" and candidate.month_day is not None:
+            coordinate = next(
+                (
+                    cell_coordinate
+                    for value, cell_coordinate in date_cells
+                    if (value.month, value.day) == candidate.month_day
+                ),
+                None,
+            )
+        elif candidate.kind == "date" and candidate.date_value is not None:
             coordinate = next(
                 (
                     cell_coordinate

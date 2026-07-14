@@ -1,0 +1,2 @@
+"""ChainPilot deterministic evaluation assets."""
+

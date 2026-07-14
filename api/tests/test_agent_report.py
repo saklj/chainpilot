@@ -174,6 +174,10 @@ def test_hallucinated_overview_falls_back_but_clean_recommendation_remains(
     assert report.usage == TokenUsage(20, 4)
     assert len(llm.calls) == 2
     assert all(call[1:] == (0.0, 30) for call in llm.calls)
+    narrative_system = llm.calls[0][0][0]["content"]
+    assert "自行合计或计数" in narrative_system
+    assert "不要在叙述中使用内部规则码" in narrative_system
+    assert "风险原因用通俗中文表述" in narrative_system
 
 
 def test_clean_narratives_are_preserved(

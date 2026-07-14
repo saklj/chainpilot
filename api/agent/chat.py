@@ -11,11 +11,13 @@ from decimal import Decimal
 from typing import Any, Literal
 
 if __package__:
+    from .glossary import load_glossary, render_glossary
     from .guardrail import GuardrailVerdict, verify_answer
     from .llm import DeepSeekClient, TokenUsage
     from .nl2sql import ChatLLM, generate_sql
     from .safe_sql import SafeResult, execute_safe
 else:
+    from glossary import load_glossary, render_glossary
     from guardrail import GuardrailVerdict, verify_answer
     from llm import DeepSeekClient, TokenUsage
     from nl2sql import ChatLLM, generate_sql
@@ -74,6 +76,14 @@ def _json_rows(result: SafeResult) -> list[list[Any]]:
     return [[_json_value(value) for value in row] for row in result.rows]
 
 
+def _truncation_notice(result: SafeResult) -> str:
+    return (
+        f"\n注：结果共 {result.row_count} 行，下方仅提供前 50 行。"
+        if result.row_count > 50
+        else ""
+    )
+
+
 def _response(
     *,
     question: str,
@@ -103,15 +113,12 @@ def _response(
 
 
 def _answer_messages(
-    question: str, sql: str, result: SafeResult
+    question: str, sql: str, result: SafeResult, *, glossary: str | None = None
 ) -> list[dict[str, str]]:
+    glossary = glossary if glossary is not None else render_glossary(load_glossary())
     rows = _json_rows(result)
     shown_rows = rows[:50]
-    truncation = (
-        f"\n注：结果共 {result.row_count} 行，下方仅提供前 50 行。"
-        if result.row_count > 50
-        else ""
-    )
+    truncation = _truncation_notice(result)
     payload = json.dumps(
         {"columns": result.columns, "rows": shown_rows}, ensure_ascii=False
     )
@@ -121,7 +128,10 @@ def _answer_messages(
             "content": (
                 "你是 ChainPilot 供应链分析助手。请用简短中文回答。"
                 "你只能引用下方结果集中已出现的数字和日期；"
-                "不许计算新数字，不许推测，不许补充结果外的事实。"
+                "不许计算新数字，不要给出任何自行合计、计数得到的新数字，"
+                "不许推测，不许补充结果外的事实。"
+                "解释术语含义时必须以术语表定义为准。"
+                f"\n业务术语表：\n{glossary}"
             ),
         },
         {
@@ -171,14 +181,21 @@ def answer_question(question: str, llm: ChatLLM) -> ChatResponse:
             usage=generated.usage,
         )
 
+    glossary = render_glossary(load_glossary())
+    truncation = _truncation_notice(safe_result)
     answer_result = llm.chat(
-        _answer_messages(question, generated.sql, safe_result),
+        _answer_messages(question, generated.sql, safe_result, glossary=glossary),
         temperature=0.0,
         timeout=30,
     )
     usage = _add_usage(generated.usage, answer_result.usage)
     draft = answer_result.content.strip()
-    verdict = verify_answer(draft, safe_result, question)
+    verdict = verify_answer(
+        draft,
+        safe_result,
+        question,
+        exempt_text=f"{glossary}\n{truncation}",
+    )
     if verdict.verdict == "fail":
         return _response(
             question=question,

@@ -137,6 +137,16 @@ ORDER BY CASE r.risk_level WHEN 'RED' THEN 1 ELSE 2 END, r.gap_qty DESC,
 LIMIT 20
 ```""",
     ),
+    FewShot(
+        "LT 覆盖率是什么意思？顺便看下当前覆盖率最低的 5 个物料。",
+        """```sql
+SELECT material_pn, lt_coverage, doi_days, risk_level
+FROM material_risk
+WHERE eval_date = (SELECT max(eval_date) FROM material_risk)
+ORDER BY lt_coverage, material_pn
+LIMIT 5
+```""",
+    ),
     FewShot("员工的工资和手机号是多少？", "NO_ANSWER"),
 )
 
@@ -160,6 +170,12 @@ Output rules:
 4. For current inventory, always use the latest snapshot_date (globally or per material as needed).
 5. Never invent unavailable facts or columns. If the data cannot answer, return exactly NO_ANSWER.
 6. Keep queries deterministic with explicit ordering where row order matters.
+7. The data is a historical snapshot: treat (SELECT max(date) FROM sales_daily) as "today"
+   whenever the question says 今天/当前/最近/未到货. Never use CURRENT_DATE, now() or today().
+8. Put exactly ONE SELECT statement in the block; for multi-part summaries use UNION ALL,
+   never multiple statements.
+9. If the question mixes a terminology explanation with a data request, still generate SQL
+   for the data part; the explanation is handled by a later step.
 """
     messages: list[Message] = [{"role": "system", "content": system}]
     for example in FEW_SHOTS:
