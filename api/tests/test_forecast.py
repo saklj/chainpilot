@@ -13,6 +13,7 @@ from analytics.forecast import (
     run_backtest,
     rolling_splits,
     seasonal_naive_forecast,
+    wmape,
     wrmsse,
 )
 
@@ -61,6 +62,7 @@ def synthetic_frames() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 def test_mape_and_wrmsse_match_hand_calculation() -> None:
     """Metric helpers match small examples calculable by hand."""
     assert mape([10, 0, 20], [8, 999, 25]) == pytest.approx(22.5)
+    assert wmape([10, 0, 20], [8, 9, 25]) == pytest.approx(53.3333333333)
 
     dates = pd.date_range("2024-01-01", periods=4, freq="D")
     train = pd.DataFrame(
@@ -84,6 +86,11 @@ def test_mape_and_wrmsse_match_hand_calculation() -> None:
     )
     # RMSSE is 1 for both SKUs: RMSE=(1,2), scales=(1,2). Any valid weights give 1.
     assert wrmsse(actual, predicted, train, prices) == pytest.approx(1.0)
+
+
+def test_wmape_rejects_zero_total_actual_demand() -> None:
+    with pytest.raises(ValueError, match="total actual demand is zero"):
+        wmape([0, 0], [1, 2])
 
 
 def test_rolling_splits_are_contiguous_and_leakage_free(synthetic_frames) -> None:

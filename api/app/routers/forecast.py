@@ -26,7 +26,7 @@ def skus(connection: Db) -> list[dict[str, str]]:
 @router.get("/metrics", response_model=list[ForecastMetric])
 def forecast_metrics(connection: Db) -> list[dict[str, Any]]:
     rows = connection.execute(
-        "SELECT model_name, fold, mape, wrmsse FROM forecast_metrics "
+        "SELECT model_name, fold, mape, wmape, wrmsse FROM forecast_metrics "
         "ORDER BY model_name, fold"
     ).fetchall()
     return [
@@ -34,7 +34,8 @@ def forecast_metrics(connection: Db) -> list[dict[str, Any]]:
             "model_name": str(row[0]),
             "fold": int(row[1]),
             "mape": float(row[2]),
-            "wrmsse": float(row[3]),
+            "wmape": float(row[3]),
+            "wrmsse": float(row[4]),
         }
         for row in rows
     ]

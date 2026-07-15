@@ -35,9 +35,13 @@ async function loadDashboard(): Promise<DashboardState> {
   }
 }
 
-function averageMape(metrics: ForecastMetric[], modelName: string): number {
+function averageMetric(
+  metrics: ForecastMetric[],
+  modelName: string,
+  field: "mape" | "wmape" | "wrmsse",
+): number {
   const selected = metrics.filter((metric) => metric.model_name === modelName);
-  return selected.reduce((sum, metric) => sum + metric.mape, 0) / selected.length;
+  return selected.reduce((sum, metric) => sum + metric[field], 0) / selected.length;
 }
 
 export default async function DashboardPage() {
@@ -62,9 +66,13 @@ export default async function DashboardPage() {
     );
   }
 
-  const lightgbmMape = averageMape(state.data.forecastMetrics, "lightgbm");
-  const baselineMape = averageMape(state.data.forecastMetrics, "seasonal_naive");
-  const baselineImprovement = ((baselineMape - lightgbmMape) / baselineMape) * 100;
+  const lightgbmMape = averageMetric(state.data.forecastMetrics, "lightgbm", "mape");
+  const baselineMape = averageMetric(state.data.forecastMetrics, "seasonal_naive", "mape");
+  const mapeImprovement = ((baselineMape - lightgbmMape) / baselineMape) * 100;
+  const lightgbmWmape = averageMetric(state.data.forecastMetrics, "lightgbm", "wmape");
+  const baselineWmape = averageMetric(state.data.forecastMetrics, "seasonal_naive", "wmape");
+  const wmapeImprovement = ((baselineWmape - lightgbmWmape) / baselineWmape) * 100;
+  const lightgbmWrmsse = averageMetric(state.data.forecastMetrics, "lightgbm", "wrmsse");
   const counts = {
     RED: state.data.summary.red_count,
     ORANGE: state.data.summary.orange_count,
@@ -89,8 +97,11 @@ export default async function DashboardPage() {
         orangeCount={state.data.summary.orange_count}
         totalGapQty={state.data.summary.total_gap_qty}
         redOrangePct={state.data.summary.red_orange_pct}
+        forecastAccuracy={100 - lightgbmWmape}
+        wmapeImprovement={wmapeImprovement}
         lightgbmMape={lightgbmMape}
-        baselineImprovement={baselineImprovement}
+        mapeImprovement={mapeImprovement}
+        lightgbmWrmsse={lightgbmWrmsse}
       />
       <RiskTable initialMaterials={state.data.materials} counts={counts} />
       <ForecastChart skus={state.data.skus} />

@@ -111,6 +111,7 @@ export const ForecastMetricSchema = z.object({
   model_name: z.string(),
   fold: z.number().int(),
   mape: z.number(),
+  wmape: z.number(),
   wrmsse: z.number(),
 });
 export type ForecastMetric = z.infer<typeof ForecastMetricSchema>;

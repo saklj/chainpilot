@@ -1,4 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const numberFormatter = new Intl.NumberFormat("zh-CN");
 
@@ -7,8 +13,11 @@ type KpiCardsProps = {
   orangeCount: number;
   totalGapQty: number;
   redOrangePct: number;
+  forecastAccuracy: number;
+  wmapeImprovement: number;
   lightgbmMape: number;
-  baselineImprovement: number;
+  mapeImprovement: number;
+  lightgbmWrmsse: number;
 };
 
 export function KpiCards({
@@ -16,8 +25,11 @@ export function KpiCards({
   orangeCount,
   totalGapQty,
   redOrangePct,
+  forecastAccuracy,
+  wmapeImprovement,
   lightgbmMape,
-  baselineImprovement,
+  mapeImprovement,
+  lightgbmWrmsse,
 }: KpiCardsProps) {
   const metrics = [
     {
@@ -37,12 +49,6 @@ export function KpiCards({
       value: numberFormatter.format(totalGapQty),
       valueClassName: "text-foreground",
       note: `红橙占比 ${redOrangePct.toFixed(1)}%`,
-    },
-    {
-      label: "预测误差 MAPE",
-      value: lightgbmMape.toFixed(1),
-      valueClassName: "text-foreground",
-      note: `较季节朴素基线改善 ${baselineImprovement.toFixed(2)}%`,
     },
   ] as const;
 
@@ -65,6 +71,39 @@ export function KpiCards({
           </CardContent>
         </Card>
       ))}
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Card
+              tabIndex={0}
+              className="border border-border bg-card ring-0 outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <CardHeader>
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  预测准确度
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <p className="text-[length:var(--font-display-md-size)] font-semibold tracking-tight text-foreground">
+                  {forecastAccuracy.toFixed(1)}%
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  较朴素基线改善 {wmapeImprovement.toFixed(1)}%
+                </p>
+              </CardContent>
+            </Card>
+          </TooltipTrigger>
+          <TooltipContent className="max-w-sm leading-relaxed">
+            口径：1−WMAPE（销量加权），3 折滚动回测，日粒度 SKU 级；MAPE{
+              " "
+            }
+            {lightgbmMape.toFixed(1)}（较基线改善 {mapeImprovement.toFixed(2)}%）；WRMSSE{
+              " "
+            }
+            {lightgbmWrmsse.toFixed(3)}
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     </div>
   );
 }

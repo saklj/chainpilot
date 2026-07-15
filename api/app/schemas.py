@@ -96,6 +96,7 @@ class ForecastMetric(BaseModel):
     model_name: str
     fold: int
     mape: float
+    wmape: float
     wrmsse: float
 
 

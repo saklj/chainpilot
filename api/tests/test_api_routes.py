@@ -117,6 +117,7 @@ def test_forecast_metrics(client: TestClient) -> None:
         len([row for row in payload if row["model_name"] == model]) == 3
         for model in {row["model_name"] for row in payload}
     )
+    assert all(row["wmape"] > 0 for row in payload)
     assert payload == sorted(payload, key=lambda row: (row["model_name"], row["fold"]))
 
 
