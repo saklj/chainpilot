@@ -23,7 +23,7 @@ const markdownComponents: Components = {
   ),
   li: ({ children }) => <li className="pl-1 marker:text-muted-foreground">{children}</li>,
   table: ({ children }) => (
-    <div className="my-5 overflow-x-auto rounded-lg border border-border">
+    <div className="report-table my-5 overflow-x-auto rounded-lg border border-border">
       <table className="w-full caption-bottom text-sm">{children}</table>
     </div>
   ),

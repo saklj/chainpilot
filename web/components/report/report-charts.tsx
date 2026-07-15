@@ -35,7 +35,7 @@ const numberFormatter = new Intl.NumberFormat("zh-CN", { maximumFractionDigits: 
 export function ReportCharts({ summary }: { summary: RiskSummary }) {
   return (
     <section className="grid gap-4 2xl:grid-cols-2" aria-label="周报图表摘要">
-      <Card className="border border-border bg-card ring-0">
+      <Card className="report-chart-card border border-border bg-card ring-0">
         <CardHeader className="border-b border-border">
           <CardTitle className="text-[20px]">Commodity 风险分布</CardTitle>
           <p className="text-xs text-muted-foreground">各品类按风险等级堆叠对比</p>
@@ -56,6 +56,7 @@ export function ReportCharts({ summary }: { summary: RiskSummary }) {
                   <Bar
                     key={dataKey}
                     dataKey={dataKey}
+                    isAnimationActive={false}
                     stackId="risk"
                     fill={`var(--color-${dataKey})`}
                     stroke="var(--card)"
@@ -69,7 +70,7 @@ export function ReportCharts({ summary }: { summary: RiskSummary }) {
         </CardContent>
       </Card>
 
-      <Card className="border border-border bg-card ring-0">
+      <Card className="report-chart-card border border-border bg-card ring-0">
         <CardHeader className="border-b border-border">
           <CardTitle className="text-[20px]">供应商敞口 Top 5</CardTitle>
           <p className="text-xs text-muted-foreground">按加权缺口量从高到低排序</p>
@@ -102,6 +103,7 @@ export function ReportCharts({ summary }: { summary: RiskSummary }) {
               <Bar
                 dataKey="weighted_gap_qty"
                 fill="var(--color-weighted_gap_qty)"
+                isAnimationActive={false}
                 radius={[0, 4, 4, 0]}
                 maxBarSize={28}
               >

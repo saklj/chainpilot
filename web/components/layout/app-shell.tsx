@@ -10,7 +10,9 @@ export function AppShell({ children }: Readonly<{ children: React.ReactNode }>) 
       <AppSidebar />
       <SidebarInset>
         <Topbar />
-        <div className="flex-1 p-4 md:p-6">{children}</div>
+        <div data-app-content className="flex-1 p-4 md:p-6">
+          {children}
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );

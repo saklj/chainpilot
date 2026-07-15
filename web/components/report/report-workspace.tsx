@@ -1,6 +1,15 @@
 "use client";
 
-import { AlertTriangle, CalendarDays, Download, LoaderCircle } from "lucide-react";
+import {
+  AlertTriangle,
+  CalendarDays,
+  ChevronDown,
+  Download,
+  FileSpreadsheet,
+  FileText,
+  LoaderCircle,
+  Printer,
+} from "lucide-react";
 import { useState } from "react";
 
 import { ReportCharts } from "@/components/report/report-charts";
@@ -8,13 +17,19 @@ import { ReportMarkdown } from "@/components/report/report-markdown";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getReport } from "@/lib/api";
+import { getReport, getReportWorkbook } from "@/lib/api";
 import type { Report, ReportMeta, RiskSummary } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 
@@ -38,6 +53,8 @@ export function ReportWorkspace({
   const [report, setReport] = useState(initialReport);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [exportingExcel, setExportingExcel] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
   const showCharts = riskSummary?.eval_date === report.report_date;
 
   async function selectReport(reportDate: string) {
@@ -53,23 +70,49 @@ export function ReportWorkspace({
     }
   }
 
-  function exportMarkdown() {
-    const blob = new Blob([report.content_md], { type: "text/markdown;charset=utf-8" });
+  function downloadBlob(blob: Blob, filename: string) {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = `chainpilot-weekly-${report.report_date}.md`;
+    anchor.download = filename;
     document.body.append(anchor);
     anchor.click();
     anchor.remove();
-    URL.revokeObjectURL(url);
+    window.setTimeout(() => URL.revokeObjectURL(url), 0);
+  }
+
+  function exportMarkdown() {
+    setExportError(null);
+    downloadBlob(
+      new Blob([report.content_md], { type: "text/markdown;charset=utf-8" }),
+      `chainpilot-weekly-${report.report_date}.md`,
+    );
+  }
+
+  async function exportExcel() {
+    if (exportingExcel) return;
+    setExportingExcel(true);
+    setExportError(null);
+    try {
+      const blob = await getReportWorkbook(report.report_date);
+      downloadBlob(blob, `chainpilot-weekly-${report.report_date}.xlsx`);
+    } catch (requestError) {
+      setExportError(requestError instanceof Error ? requestError.message : "Excel 导出失败");
+    } finally {
+      setExportingExcel(false);
+    }
   }
 
   return (
-    <section className="mx-auto w-full max-w-7xl space-y-5">
+    <section className="report-print-page mx-auto w-full max-w-7xl space-y-5">
       <header className="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-2">
-          <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">M5 · T5</p>
+          <p
+            data-print-hide
+            className="text-xs font-medium tracking-wide text-muted-foreground uppercase"
+          >
+            M5 · T5
+          </p>
           <h1 className="text-[length:var(--font-headline-size)] font-semibold tracking-tight">
             供应风险周报
           </h1>
@@ -80,12 +123,38 @@ export function ReportWorkspace({
             <span>生成于 {formatCreatedAt(report.created_at)}</span>
           </div>
         </div>
-        <Button variant="outline" onClick={exportMarkdown}>
-          <Download aria-hidden="true" /> 导出 Markdown
-        </Button>
+        <div data-print-hide>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" disabled={exportingExcel}>
+                {exportingExcel ? (
+                  <LoaderCircle className="animate-spin" aria-hidden="true" />
+                ) : (
+                  <Download aria-hidden="true" />
+                )}
+                导出
+                <ChevronDown aria-hidden="true" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-40">
+              <DropdownMenuItem onSelect={exportMarkdown}>
+                <FileText aria-hidden="true" /> Markdown
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => window.print()}>
+                <Printer aria-hidden="true" /> PDF
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                disabled={exportingExcel}
+                onSelect={() => void exportExcel()}
+              >
+                <FileSpreadsheet aria-hidden="true" /> Excel
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </header>
 
-      <div className="xl:hidden">
+      <div data-print-hide className="xl:hidden">
         <Select value={report.report_date} onValueChange={(value) => void selectReport(value)}>
           <SelectTrigger className="w-full" aria-label="选择历史周报">
             <SelectValue placeholder="选择历史周报" />
@@ -101,10 +170,19 @@ export function ReportWorkspace({
       </div>
 
       {error ? (
-        <Card className="border border-destructive/30 bg-card ring-0">
+        <Card data-print-hide className="border border-destructive/30 bg-card ring-0">
           <CardContent className="flex items-center gap-3 text-sm text-muted-foreground">
             <AlertTriangle className="size-4 shrink-0 text-destructive" aria-hidden="true" />
             历史周报加载失败：{error}。当前报告仍可继续查看。
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {exportError ? (
+        <Card data-print-hide className="border border-destructive/30 bg-card ring-0">
+          <CardContent className="flex items-center gap-3 text-sm text-muted-foreground">
+            <AlertTriangle className="size-4 shrink-0 text-destructive" aria-hidden="true" />
+            导出失败：{exportError}。请确认 API 已启动后重试。
           </CardContent>
         </Card>
       ) : null}
@@ -118,7 +196,10 @@ export function ReportWorkspace({
           ) : null}
 
           {report.narrative_fallbacks.length > 0 ? (
-            <div className="rounded-lg border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-foreground/90">
+            <div
+              data-print-hide
+              className="rounded-lg border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-foreground/90"
+            >
               以下叙述段由确定性模板兜底生成：{report.narrative_fallbacks.join("、")}
             </div>
           ) : null}
@@ -132,7 +213,7 @@ export function ReportWorkspace({
           </Card>
         </main>
 
-        <aside className="hidden xl:block">
+        <aside data-print-hide className="hidden xl:block">
           <div className="sticky top-20 rounded-xl border border-border bg-card p-3">
             <p className="px-2 pb-3 text-xs font-medium tracking-wide text-muted-foreground uppercase">
               历史周报

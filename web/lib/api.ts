@@ -110,6 +110,22 @@ export function getReport(reportDate: string): Promise<Report> {
   return request(`/api/report/${encodeURIComponent(reportDate)}`, ReportSchema);
 }
 
+export async function getReportWorkbook(reportDate: string): Promise<Blob> {
+  const response = await fetch(
+    `${API_BASE}/api/report/${encodeURIComponent(reportDate)}/xlsx`,
+    { cache: "no-store" },
+  );
+  if (!response.ok) {
+    const payload: unknown = await response.json().catch(() => null);
+    const detail =
+      typeof payload === "object" && payload !== null && "detail" in payload
+        ? payload.detail
+        : payload;
+    throw new ApiError(response.status, detail);
+  }
+  return response.blob();
+}
+
 export function getReportList(): Promise<ReportMeta[]> {
   return request("/api/report/list", z.array(ReportMetaSchema));
 }

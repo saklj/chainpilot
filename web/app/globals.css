@@ -110,3 +110,85 @@
     margin: 0;
   }
 }
+
+@media print {
+  html:has(.report-print-page) {
+    color-scheme: light;
+    --background: #ffffff;
+    --foreground: #111111;
+    --card: #ffffff;
+    --card-foreground: #111111;
+    --popover: #ffffff;
+    --popover-foreground: #111111;
+    --muted: #f3f4f6;
+    --muted-foreground: #4b5563;
+    --border: #d1d5db;
+  }
+
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  body:has(.report-print-page) [data-slot="sidebar"],
+  body:has(.report-print-page) [data-slot="sidebar-gap"],
+  body:has(.report-print-page) [data-app-topbar],
+  body:has(.report-print-page) [data-print-hide] {
+    display: none !important;
+  }
+
+  body:has(.report-print-page) [data-slot="sidebar-wrapper"],
+  body:has(.report-print-page) [data-slot="sidebar-inset"] {
+    display: block;
+    min-height: auto;
+    width: 100%;
+    margin: 0;
+    background: var(--background);
+    box-shadow: none;
+  }
+
+  body:has(.report-print-page) [data-app-content] {
+    padding: 0 !important;
+  }
+
+  .report-print-page {
+    max-width: none !important;
+  }
+
+  .report-print-page > header {
+    margin-bottom: 16px;
+  }
+
+  .report-print-page .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .report-chart-card,
+  .report-table,
+  .report-print-page table,
+  .report-print-page tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .report-table {
+    overflow: visible !important;
+  }
+
+  .report-print-page table {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .report-print-page th,
+  .report-print-page td {
+    padding: 6px !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+  }
+
+  .report-print-page h2 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+}

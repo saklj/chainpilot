@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import json
+from io import BytesIO
 from pathlib import Path
 
 import duckdb
 import pytest
 from fastapi.testclient import TestClient
+from openpyxl import load_workbook
 
 from agent.llm import LLMResult, TokenUsage
 from app.deps import get_llm
@@ -243,3 +245,29 @@ def test_report_by_date_matches_latest_and_returns_structured_404(
         "code": "report_not_found",
         "message": "Weekly report 2016-05-15 not found",
     }
+
+
+def test_report_workbook_has_typed_four_sheet_export_and_404(
+    client: TestClient,
+) -> None:
+    report_date = client.get("/api/report/latest").json()["report_date"]
+    response = client.get(f"/api/report/{report_date}/xlsx")
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith(
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    assert response.headers["content-disposition"] == (
+        f"attachment; filename=chainpilot-weekly-{report_date}.xlsx"
+    )
+    workbook = load_workbook(BytesIO(response.content), data_only=False)
+    assert workbook.sheetnames == ["KPI总览", "Top风险物料", "供应商敞口", "Commodity分布"]
+    assert all(sheet.freeze_panes == "A2" for sheet in workbook.worksheets)
+    red_count = workbook["KPI总览"]["B2"].value
+    assert red_count == 20
+    assert type(red_count) is int
+    assert isinstance(workbook["供应商敞口"]["D2"].value, (int, float))
+
+    missing = client.get("/api/report/2016-05-15/xlsx")
+    assert missing.status_code == 404
+    assert missing.json()["detail"]["code"] == "report_not_found"
