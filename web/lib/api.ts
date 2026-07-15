@@ -21,7 +21,7 @@ import {
   type SkuInfo,
 } from "@/lib/schemas";
 
-const API_BASE = (process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8000").replace(
+export const API_BASE = (process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8000").replace(
   /\/$/,
   "",
 );

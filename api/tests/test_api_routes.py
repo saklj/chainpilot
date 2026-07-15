@@ -145,6 +145,64 @@ def test_chat_empty_question_is_422(client: TestClient) -> None:
     assert response.status_code == 422
 
 
+def _read_sse(response) -> list[dict]:
+    events = []
+    for line in response.iter_lines():
+        if line.startswith("data: "):
+            events.append(json.loads(line.removeprefix("data: ")))
+    return events
+
+
+def test_chat_stream_matches_sync_response(client: TestClient) -> None:
+    responses = (
+        "```sql\nSELECT gap_qty FROM material_risk "
+        "WHERE material_pn = 'PN-00003' ORDER BY eval_date DESC LIMIT 1\n```",
+        "缺口是13153。",
+    )
+    app.dependency_overrides[get_llm] = lambda: SequenceLLM(*responses)
+
+    with client.stream(
+        "POST", "/api/chat/stream", json={"question": "PN-00003的缺口是多少？"}
+    ) as response:
+        assert response.status_code == 200
+        assert response.headers["content-type"].startswith("text/event-stream")
+        events = _read_sse(response)
+
+    assert [event["type"] for event in events] == [
+        "stage",
+        "sql",
+        "rows",
+        "answer",
+        "result",
+    ]
+    assert events[1]["sql"].startswith("SELECT gap_qty")
+    assert events[2]["rows"] == [[13153]]
+    assert events[2]["row_count"] == 1
+
+    app.dependency_overrides[get_llm] = lambda: SequenceLLM(*responses)
+    sync = client.post("/api/chat", json={"question": "PN-00003的缺口是多少？"})
+    assert sync.status_code == 200
+    assert events[-1]["result"] == sync.json()
+
+
+def test_chat_stream_no_answer_only_emits_stage_and_result(client: TestClient) -> None:
+    app.dependency_overrides[get_llm] = lambda: SequenceLLM("NO_ANSWER")
+
+    with client.stream(
+        "POST", "/api/chat/stream", json={"question": "明天天气怎么样？"}
+    ) as response:
+        assert response.status_code == 200
+        events = _read_sse(response)
+
+    assert [event["type"] for event in events] == ["stage", "result"]
+    assert events[-1]["result"]["refused"] is True
+    assert events[-1]["result"]["refusal_reason"] == "out_of_scope"
+
+
+def test_chat_stream_is_visible_in_openapi(client: TestClient) -> None:
+    assert "/api/chat/stream" in client.get("/openapi.json").json()["paths"]
+
+
 def test_report_endpoints_match_weekly_report(client: TestClient) -> None:
     latest = client.get("/api/report/latest")
     listing = client.get("/api/report/list")

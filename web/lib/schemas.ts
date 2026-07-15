@@ -166,6 +166,42 @@ export const ChatResultSchema = z.object({
 });
 export type ChatResult = z.infer<typeof ChatResultSchema>;
 
+export const ChatStageEventSchema = z.object({
+  type: z.literal("stage"),
+  stage: z.literal("generating_sql"),
+});
+
+export const ChatSqlEventSchema = z.object({
+  type: z.literal("sql"),
+  sql: z.string(),
+});
+
+export const ChatRowsEventSchema = z.object({
+  type: z.literal("rows"),
+  columns: z.array(z.string()),
+  rows: z.array(z.array(z.unknown())),
+  row_count: z.number().int(),
+});
+
+export const ChatAnswerEventSchema = z.object({
+  type: z.literal("answer"),
+  answer: z.string(),
+});
+
+export const ChatResultEventSchema = z.object({
+  type: z.literal("result"),
+  result: ChatResultSchema,
+});
+
+export const ChatEventSchema = z.discriminatedUnion("type", [
+  ChatStageEventSchema,
+  ChatSqlEventSchema,
+  ChatRowsEventSchema,
+  ChatAnswerEventSchema,
+  ChatResultEventSchema,
+]);
+export type ChatEvent = z.infer<typeof ChatEventSchema>;
+
 export const ReportSchema = z.object({
   report_date: z.string(),
   content_md: z.string(),
