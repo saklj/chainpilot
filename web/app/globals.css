@@ -1,10 +1,194 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
+@custom-variant dark (&:is(.dark *));
+
+:root,
+.dark {
   color-scheme: dark;
+  --background: #010102;
+  --foreground: #f7f8f8;
+  --card: #0f1011;
+  --card-foreground: #f7f8f8;
+  --popover: #141516;
+  --popover-foreground: #f7f8f8;
+  --primary: #5e6ad2;
+  --primary-foreground: #ffffff;
+  --secondary: #141516;
+  --secondary-foreground: #d0d6e0;
+  --muted: #141516;
+  --muted-foreground: #8a8f98;
+  --accent: #18191a;
+  --accent-foreground: #f7f8f8;
+  --destructive: #ef4444;
+  --border: #23252a;
+  --input: #34343a;
+  --ring: #5e69d1;
+  --chart-1: #b45309;
+  --chart-2: #0891b2;
+  --chart-3: #5e6ad2;
+  --chart-4: #d0d6e0;
+  --chart-5: #62666d;
+  --sidebar: #0f1011;
+  --sidebar-foreground: #d0d6e0;
+  --sidebar-primary: #5e6ad2;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #18191a;
+  --sidebar-accent-foreground: #f7f8f8;
+  --sidebar-border: #23252a;
+  --sidebar-ring: #5e69d1;
+  --risk-red: #ef4444;
+  --risk-orange: #f97316;
+  --risk-yellow: #eab308;
+  --risk-green: #22c55e;
+  --font-app-text: "SF Pro Text", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-app-display: "SF Pro Display", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-headline-size: 28px;
+  --font-display-md-size: 40px;
 }
 
-body {
-  margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
+@theme inline {
+  --font-heading: var(--font-app-display);
+  --font-sans: var(--font-app-text);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --color-risk-red: var(--risk-red);
+  --color-risk-orange: var(--risk-orange);
+  --color-risk-yellow: var(--risk-yellow);
+  --color-risk-green: var(--risk-green);
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-3xl: 24px;
+  --radius-4xl: 24px;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    @apply bg-background font-sans text-foreground;
+  }
+
+  body {
+    @apply min-h-svh bg-background text-foreground;
+    margin: 0;
+  }
+}
+
+@media print {
+  html:has(.report-print-page) {
+    color-scheme: light;
+    --background: #ffffff;
+    --foreground: #111111;
+    --card: #ffffff;
+    --card-foreground: #111111;
+    --popover: #ffffff;
+    --popover-foreground: #111111;
+    --muted: #f3f4f6;
+    --muted-foreground: #4b5563;
+    --border: #d1d5db;
+  }
+
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  body:has(.report-print-page) [data-slot="sidebar"],
+  body:has(.report-print-page) [data-slot="sidebar-gap"],
+  body:has(.report-print-page) [data-app-topbar],
+  body:has(.report-print-page) [data-print-hide] {
+    display: none !important;
+  }
+
+  body:has(.report-print-page) [data-slot="sidebar-wrapper"],
+  body:has(.report-print-page) [data-slot="sidebar-inset"] {
+    display: block;
+    min-height: auto;
+    width: 100%;
+    margin: 0;
+    background: var(--background);
+    box-shadow: none;
+  }
+
+  body:has(.report-print-page) [data-app-content] {
+    padding: 0 !important;
+  }
+
+  .report-print-page {
+    max-width: none !important;
+  }
+
+  .report-print-page > header {
+    margin-bottom: 16px;
+  }
+
+  .report-print-page .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .report-chart-card,
+  .report-table,
+  .report-print-page table,
+  .report-print-page tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .report-table {
+    overflow: visible !important;
+  }
+
+  .report-print-page table {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .report-print-page th,
+  .report-print-page td {
+    padding: 6px !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+  }
+
+  .report-print-page h2 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
 }

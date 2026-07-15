@@ -113,6 +113,18 @@ def mape(y_true: Iterable[float], y_pred: Iterable[float]) -> float:
     return float(np.mean(np.abs(actual[mask] - predicted[mask]) / actual[mask]) * 100)
 
 
+def wmape(y_true: Iterable[float], y_pred: Iterable[float]) -> float:
+    """Return sales-volume-weighted absolute percentage error."""
+    actual = np.asarray(list(y_true), dtype=float)
+    predicted = np.asarray(list(y_pred), dtype=float)
+    if actual.shape != predicted.shape:
+        raise ValueError("y_true and y_pred must have the same shape")
+    denominator = actual.sum()
+    if denominator == 0:
+        raise ValueError("WMAPE is undefined when total actual demand is zero")
+    return float(np.abs(actual - predicted).sum() / denominator * 100)
+
+
 def attach_prices(dates: pd.DataFrame, prices: pd.DataFrame) -> pd.DataFrame:
     """Attach the most recent known weekly price to each SKU/date row."""
     left = dates.copy()
@@ -362,6 +374,7 @@ def run_backtest(
                     "model_name": model_name,
                     "fold": split.fold,
                     "mape": mape(scored["units_sold"], scored["yhat"]),
+                    "wmape": wmape(scored["units_sold"], scored["yhat"]),
                     "wrmsse": wrmsse(split.test, predicted, split.train, prices),
                 }
             )
@@ -382,11 +395,21 @@ def predict_future(
 
 def write_metrics(connection: duckdb.DuckDBPyConnection, metrics: pd.DataFrame) -> None:
     """Replace forecast_metrics atomically within the caller's transaction."""
-    connection.register("new_forecast_metrics", metrics)
-    connection.execute("DELETE FROM forecast_metrics")
     connection.execute(
-        "INSERT INTO forecast_metrics "
-        "SELECT model_name, fold, mape, wrmsse FROM new_forecast_metrics"
+        """
+        CREATE OR REPLACE TABLE forecast_metrics (
+            model_name VARCHAR,
+            fold INTEGER,
+            mape DECIMAL(18,3),
+            wmape DECIMAL(18,3),
+            wrmsse DECIMAL(18,3)
+        )
+        """
+    )
+    connection.register("new_forecast_metrics", metrics)
+    connection.execute(
+        "INSERT INTO forecast_metrics (model_name, fold, mape, wmape, wrmsse) "
+        "SELECT model_name, fold, mape, wmape, wrmsse FROM new_forecast_metrics"
     )
     connection.unregister("new_forecast_metrics")
 
@@ -404,19 +427,36 @@ def write_forecasts(connection: duckdb.DuckDBPyConnection, forecasts: pd.DataFra
 
 
 def print_summary(metrics: pd.DataFrame) -> None:
-    """Print per-model fold means and LightGBM's relative MAPE improvement."""
+    """Print per-model fold means and LightGBM's relative baseline improvements."""
     if metrics.empty:
         print("No backtest metrics available.")
         return
-    summary = metrics.groupby("model_name", as_index=False)[["mape", "wrmsse"]].mean()
+    summary = metrics.groupby("model_name", as_index=False)[["mape", "wmape", "wrmsse"]].mean()
     summary = summary.sort_values("model_name")
     print("\nBacktest mean metrics (3 folds)")
-    print(summary.to_string(index=False, formatters={"mape": "{:.4f}".format, "wrmsse": "{:.4f}".format}))
+    print(
+        summary.to_string(
+            index=False,
+            formatters={
+                "mape": "{:.4f}".format,
+                "wmape": "{:.4f}".format,
+                "wrmsse": "{:.4f}".format,
+            },
+        )
+    )
     indexed = summary.set_index("model_name")
     if {"seasonal_naive", "lightgbm"} <= set(indexed.index):
         baseline = float(indexed.loc["seasonal_naive", "mape"])
         improvement = (baseline - float(indexed.loc["lightgbm", "mape"])) / baseline * 100
         print(f"LightGBM relative MAPE improvement vs seasonal_naive: {improvement:.2f}%")
+        wmape_baseline = float(indexed.loc["seasonal_naive", "wmape"])
+        wmape_improvement = (
+            wmape_baseline - float(indexed.loc["lightgbm", "wmape"])
+        ) / wmape_baseline * 100
+        print(
+            "LightGBM relative WMAPE improvement vs seasonal_naive: "
+            f"{wmape_improvement:.2f}%"
+        )
 
 
 def main(argv: Sequence[str] | None = None) -> None:
@@ -445,7 +485,7 @@ def main(argv: Sequence[str] | None = None) -> None:
             raise
         if args.predict_only:
             metrics = connection.execute(
-                "SELECT model_name, fold, mape, wrmsse FROM forecast_metrics"
+                "SELECT model_name, fold, mape, wmape, wrmsse FROM forecast_metrics"
             ).fetchdf()
     finally:
         connection.close()

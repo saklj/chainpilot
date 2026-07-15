@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import json
 import sys
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 from dataclasses import asdict, dataclass
 from datetime import date, datetime
 from decimal import Decimal
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 if __package__:
     from .glossary import load_glossary, render_glossary
@@ -53,6 +53,60 @@ class ChatResponse:
     def to_dict(self) -> dict[str, Any]:
         """Return a structure accepted by ``json.dumps`` without a custom encoder."""
         return asdict(self)
+
+
+def verdict_to_dict(verdict: GuardrailVerdict | None) -> dict[str, Any] | None:
+    """Expand evidence coordinates into the public API verdict shape."""
+    if verdict is None:
+        return None
+    return {
+        "verdict": verdict.verdict,
+        "matched": [
+            {"value": value, "row": coordinate[0], "column": coordinate[1]}
+            for value, coordinate in verdict.matched.items()
+        ],
+        "unmatched": verdict.unmatched,
+        "checked_count": verdict.checked_count,
+    }
+
+
+def _result_event(response: ChatResponse) -> dict[str, Any]:
+    payload = response.to_dict()
+    payload["verdict"] = verdict_to_dict(response.verdict)
+    return {"type": "result", "result": payload}
+
+
+def _response_from_result(payload: dict[str, Any]) -> ChatResponse:
+    verdict_payload = payload["verdict"]
+    verdict = None
+    if verdict_payload is not None:
+        verdict = GuardrailVerdict(
+            verdict=verdict_payload["verdict"],
+            matched={
+                item["value"]: (item["row"], item["column"])
+                for item in verdict_payload["matched"]
+            },
+            unmatched=verdict_payload["unmatched"],
+            checked_count=verdict_payload["checked_count"],
+        )
+    usage_payload = payload["usage"]
+    return ChatResponse(
+        question=payload["question"],
+        answer=payload["answer"],
+        refused=payload["refused"],
+        refusal_reason=cast(RefusalReason | None, payload["refusal_reason"]),
+        sql=payload["sql"],
+        final_sql=payload["final_sql"],
+        columns=payload["columns"],
+        rows=payload["rows"],
+        row_count=payload["row_count"],
+        verdict=verdict,
+        draft_answer=payload["draft_answer"],
+        usage=TokenUsage(
+            prompt_tokens=usage_payload["prompt_tokens"],
+            completion_tokens=usage_payload["completion_tokens"],
+        ),
+    )
 
 
 def _add_usage(left: TokenUsage, right: TokenUsage) -> TokenUsage:
@@ -141,45 +195,69 @@ def _answer_messages(
     ]
 
 
-def answer_question(question: str, llm: ChatLLM) -> ChatResponse:
-    """Run the complete two-call chat chain and block unsupported numeric claims."""
+def answer_question_events(
+    question: str, llm: ChatLLM
+) -> Iterator[dict[str, Any]]:
+    """Yield stage-level chat events while preserving the guarded final contract."""
+    yield {"type": "stage", "stage": "generating_sql"}
     generated = generate_sql(question, llm)
     if generated.status == "no_answer":
-        return _response(
-            question=question,
-            answer=OUT_OF_SCOPE_ANSWER,
-            refused=True,
-            refusal_reason="out_of_scope",
-            usage=generated.usage,
+        yield _result_event(
+            _response(
+                question=question,
+                answer=OUT_OF_SCOPE_ANSWER,
+                refused=True,
+                refusal_reason="out_of_scope",
+                usage=generated.usage,
+            )
         )
+        return
     if generated.status != "ok" or generated.sql is None:
-        return _response(
-            question=question,
-            answer=GENERATION_FAILED_ANSWER,
-            refused=True,
-            refusal_reason="generation_failed",
-            usage=generated.usage,
+        yield _result_event(
+            _response(
+                question=question,
+                answer=GENERATION_FAILED_ANSWER,
+                refused=True,
+                refusal_reason="generation_failed",
+                usage=generated.usage,
+            )
         )
+        return
 
     safe_result = execute_safe(generated.sql)
     if not safe_result.ok:
-        return _response(
-            question=question,
-            answer=f"查询被安全策略拒绝：{safe_result.rejected_reason}",
-            refused=True,
-            refusal_reason="sql_rejected",
-            sql=generated.sql,
-            safe_result=safe_result,
-            usage=generated.usage,
+        yield _result_event(
+            _response(
+                question=question,
+                answer=f"查询被安全策略拒绝：{safe_result.rejected_reason}",
+                refused=True,
+                refusal_reason="sql_rejected",
+                sql=generated.sql,
+                safe_result=safe_result,
+                usage=generated.usage,
+            )
         )
+        return
+
+    rows = _json_rows(safe_result)
+    yield {"type": "sql", "sql": generated.sql}
+    yield {
+        "type": "rows",
+        "columns": list(safe_result.columns),
+        "rows": rows,
+        "row_count": safe_result.row_count,
+    }
     if safe_result.row_count == 0:
-        return _response(
-            question=question,
-            answer=EMPTY_RESULT_ANSWER,
-            sql=generated.sql,
-            safe_result=safe_result,
-            usage=generated.usage,
+        yield _result_event(
+            _response(
+                question=question,
+                answer=EMPTY_RESULT_ANSWER,
+                sql=generated.sql,
+                safe_result=safe_result,
+                usage=generated.usage,
+            )
         )
+        return
 
     glossary = render_glossary(load_glossary())
     truncation = _truncation_notice(safe_result)
@@ -190,6 +268,7 @@ def answer_question(question: str, llm: ChatLLM) -> ChatResponse:
     )
     usage = _add_usage(generated.usage, answer_result.usage)
     draft = answer_result.content.strip()
+    yield {"type": "answer", "answer": draft}
     verdict = verify_answer(
         draft,
         safe_result,
@@ -197,25 +276,41 @@ def answer_question(question: str, llm: ChatLLM) -> ChatResponse:
         exempt_text=f"{glossary}\n{truncation}",
     )
     if verdict.verdict == "fail":
-        return _response(
+        yield _result_event(
+            _response(
+                question=question,
+                answer=GUARDRAIL_FAILED_ANSWER,
+                refused=True,
+                refusal_reason="guardrail_failed",
+                sql=generated.sql,
+                safe_result=safe_result,
+                verdict=verdict,
+                draft_answer=draft,
+                usage=usage,
+            )
+        )
+        return
+    yield _result_event(
+        _response(
             question=question,
-            answer=GUARDRAIL_FAILED_ANSWER,
-            refused=True,
-            refusal_reason="guardrail_failed",
+            answer=draft,
             sql=generated.sql,
             safe_result=safe_result,
             verdict=verdict,
-            draft_answer=draft,
             usage=usage,
         )
-    return _response(
-        question=question,
-        answer=draft,
-        sql=generated.sql,
-        safe_result=safe_result,
-        verdict=verdict,
-        usage=usage,
     )
+
+
+def answer_question(question: str, llm: ChatLLM) -> ChatResponse:
+    """Run the complete chain and return only its guarded terminal result."""
+    terminal: dict[str, Any] | None = None
+    for event in answer_question_events(question, llm):
+        if event["type"] == "result":
+            terminal = event["result"]
+    if terminal is None:  # Defensive: every generator path must yield a result frame.
+        raise RuntimeError("chat event stream ended without a result")
+    return _response_from_result(terminal)
 
 
 def _print_rows(response: ChatResponse) -> None:
