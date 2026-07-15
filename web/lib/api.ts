@@ -106,6 +106,10 @@ export function getLatestReport(): Promise<Report> {
   return request("/api/report/latest", ReportSchema);
 }
 
+export function getReport(reportDate: string): Promise<Report> {
+  return request(`/api/report/${encodeURIComponent(reportDate)}`, ReportSchema);
+}
+
 export function getReportList(): Promise<ReportMeta[]> {
   return request("/api/report/list", z.array(ReportMetaSchema));
 }

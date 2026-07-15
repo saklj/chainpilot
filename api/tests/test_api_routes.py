@@ -225,3 +225,21 @@ def test_report_endpoints_match_weekly_report(client: TestClient) -> None:
         "created_at": row[3].isoformat(),
     }
     assert listing.json()[0]["report_date"] == payload["report_date"]
+
+
+def test_report_by_date_matches_latest_and_returns_structured_404(
+    client: TestClient,
+) -> None:
+    latest = client.get("/api/report/latest")
+    report_date = latest.json()["report_date"]
+
+    dated = client.get(f"/api/report/{report_date}")
+    assert dated.status_code == 200
+    assert dated.json() == latest.json()
+
+    missing = client.get("/api/report/2016-05-15")
+    assert missing.status_code == 404
+    assert missing.json()["detail"] == {
+        "code": "report_not_found",
+        "message": "Weekly report 2016-05-15 not found",
+    }
