@@ -103,6 +103,23 @@ def test_forecast_endpoints_and_404(client: TestClient) -> None:
     assert missing.json()["detail"]["code"] == "sku_not_found"
 
 
+def test_forecast_metrics(client: TestClient) -> None:
+    response = client.get("/api/forecast/metrics")
+    assert response.status_code == 200
+    payload = response.json()
+    assert len(payload) == 9
+    assert {row["model_name"] for row in payload} == {
+        "seasonal_naive",
+        "ets",
+        "lightgbm",
+    }
+    assert all(
+        len([row for row in payload if row["model_name"] == model]) == 3
+        for model in {row["model_name"] for row in payload}
+    )
+    assert payload == sorted(payload, key=lambda row: (row["model_name"], row["fold"]))
+
+
 def test_chat_uses_injected_llm_and_serializes_verdict(client: TestClient) -> None:
     llm = SequenceLLM(
         "```sql\nSELECT gap_qty FROM material_risk "

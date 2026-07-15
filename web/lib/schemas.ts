@@ -107,6 +107,14 @@ export const ForecastPointSchema = z.object({
 });
 export type ForecastPoint = z.infer<typeof ForecastPointSchema>;
 
+export const ForecastMetricSchema = z.object({
+  model_name: z.string(),
+  fold: z.number().int(),
+  mape: z.number(),
+  wrmsse: z.number(),
+});
+export type ForecastMetric = z.infer<typeof ForecastMetricSchema>;
+
 export const SkuForecastSchema = z.object({
   sku_id: z.string(),
   product_name: z.string(),

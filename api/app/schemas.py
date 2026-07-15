@@ -92,6 +92,13 @@ class ForecastPoint(BaseModel):
     yhat: float
 
 
+class ForecastMetric(BaseModel):
+    model_name: str
+    fold: int
+    mape: float
+    wrmsse: float
+
+
 class SkuForecast(BaseModel):
     sku_id: str
     product_name: str

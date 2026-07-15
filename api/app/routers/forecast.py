@@ -6,7 +6,7 @@ import duckdb
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.deps import get_db
-from app.schemas import SkuForecast, SkuInfo
+from app.schemas import ForecastMetric, SkuForecast, SkuInfo
 
 router = APIRouter(prefix="/api/forecast", tags=["forecast"])
 Db = Annotated[duckdb.DuckDBPyConnection, Depends(get_db)]
@@ -19,6 +19,23 @@ def skus(connection: Db) -> list[dict[str, str]]:
     ).fetchall()
     return [
         {"sku_id": str(row[0]), "product_name": str(row[1]), "product_family": str(row[2])}
+        for row in rows
+    ]
+
+
+@router.get("/metrics", response_model=list[ForecastMetric])
+def forecast_metrics(connection: Db) -> list[dict[str, Any]]:
+    rows = connection.execute(
+        "SELECT model_name, fold, mape, wrmsse FROM forecast_metrics "
+        "ORDER BY model_name, fold"
+    ).fetchall()
+    return [
+        {
+            "model_name": str(row[0]),
+            "fold": int(row[1]),
+            "mape": float(row[2]),
+            "wrmsse": float(row[3]),
+        }
         for row in rows
     ]
 

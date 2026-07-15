@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import {
   ChatResultSchema,
+  ForecastMetricSchema,
   MaterialRiskDetailSchema,
   MaterialRiskSchema,
   ReportMetaSchema,
@@ -10,6 +11,7 @@ import {
   SkuForecastSchema,
   SkuInfoSchema,
   type ChatResult,
+  type ForecastMetric,
   type MaterialRisk,
   type MaterialRiskDetail,
   type Report,
@@ -82,6 +84,10 @@ export function getRiskMaterialDetail(materialPn: string): Promise<MaterialRiskD
 
 export function getSkus(): Promise<SkuInfo[]> {
   return request("/api/forecast/skus", z.array(SkuInfoSchema));
+}
+
+export function getForecastMetrics(): Promise<ForecastMetric[]> {
+  return request("/api/forecast/metrics", z.array(ForecastMetricSchema));
 }
 
 export function getSkuForecast(skuId: string, historyDays?: number): Promise<SkuForecast> {

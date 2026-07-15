@@ -1,19 +1,32 @@
 import { AlertTriangle } from "lucide-react";
 
+import { ForecastChart } from "@/components/dashboard/forecast-chart";
+import { KpiCards } from "@/components/dashboard/kpi-cards";
+import { RiskTable } from "@/components/dashboard/risk-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getRiskSummary } from "@/lib/api";
-import type { RiskSummary } from "@/lib/schemas";
+import { getForecastMetrics, getRiskMaterials, getRiskSummary, getSkus } from "@/lib/api";
+import type { ForecastMetric, MaterialRisk, RiskSummary, SkuInfo } from "@/lib/schemas";
 
-const numberFormatter = new Intl.NumberFormat("zh-CN");
+type DashboardData = {
+  summary: RiskSummary;
+  forecastMetrics: ForecastMetric[];
+  materials: MaterialRisk[];
+  skus: SkuInfo[];
+};
 
-type SummaryState =
-  | { status: "ready"; summary: RiskSummary }
+type DashboardState =
+  | { status: "ready"; data: DashboardData }
   | { status: "error"; message: string };
 
-async function loadSummary(): Promise<SummaryState> {
+async function loadDashboard(): Promise<DashboardState> {
   try {
-    const summary = await getRiskSummary();
-    return { status: "ready", summary };
+    const [summary, forecastMetrics, materials, skus] = await Promise.all([
+      getRiskSummary(),
+      getForecastMetrics(),
+      getRiskMaterials({ limit: 300 }),
+      getSkus(),
+    ]);
+    return { status: "ready", data: { summary, forecastMetrics, materials, skus } };
   } catch (error: unknown) {
     return {
       status: "error",
@@ -22,80 +35,65 @@ async function loadSummary(): Promise<SummaryState> {
   }
 }
 
+function averageMape(metrics: ForecastMetric[], modelName: string): number {
+  const selected = metrics.filter((metric) => metric.model_name === modelName);
+  return selected.reduce((sum, metric) => sum + metric.mape, 0) / selected.length;
+}
+
 export default async function DashboardPage() {
-  const state = await loadSummary();
+  const state = await loadDashboard();
 
-  if (state.status === "ready") {
-    const metrics = [
-      {
-        label: "红色风险数",
-        value: numberFormatter.format(state.summary.red_count),
-        className: "text-risk-red",
-      },
-      {
-        label: "橙色风险数",
-        value: numberFormatter.format(state.summary.orange_count),
-        className: "text-risk-orange",
-      },
-      {
-        label: "总缺口件数",
-        value: numberFormatter.format(state.summary.total_gap_qty),
-        className: "text-risk-yellow",
-      },
-      {
-        label: "红橙占比",
-        value: `${state.summary.red_orange_pct.toFixed(1)}%`,
-        className: "text-risk-green",
-      },
-    ] as const;
-
+  if (state.status === "error") {
     return (
-      <section className="mx-auto w-full max-w-7xl space-y-6">
-        <div className="space-y-2">
-          <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-            评估日期 {state.summary.eval_date}
-          </p>
-          <h1 className="text-[length:var(--font-headline-size)] font-semibold tracking-tight">
-            供应风险概览
-          </h1>
-          <p className="text-sm text-muted-foreground">最新物料风险快照与关键暴露指标。</p>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {metrics.map((metric) => (
-            <Card key={metric.label} className="border border-border bg-card ring-0">
-              <CardHeader>
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  {metric.label}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p
-                  className={`text-[length:var(--font-display-md-size)] font-semibold tracking-tight ${metric.className}`}
-                >
-                  {metric.value}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+      <section className="mx-auto w-full max-w-7xl">
+        <Card className="border border-border bg-card ring-0">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="size-5 text-muted-foreground" aria-hidden="true" />
+              <CardTitle>暂时无法加载风险数据</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm text-muted-foreground">
+            <p>请确认 ChainPilot API 已在本地启动，然后刷新页面。</p>
+            <p className="font-mono text-xs text-foreground/70">{state.message}</p>
+          </CardContent>
+        </Card>
       </section>
     );
   }
 
+  const lightgbmMape = averageMape(state.data.forecastMetrics, "lightgbm");
+  const baselineMape = averageMape(state.data.forecastMetrics, "seasonal_naive");
+  const baselineImprovement = ((baselineMape - lightgbmMape) / baselineMape) * 100;
+  const counts = {
+    RED: state.data.summary.red_count,
+    ORANGE: state.data.summary.orange_count,
+    YELLOW: state.data.summary.yellow_count,
+    GREEN: state.data.summary.green_count,
+  };
+
   return (
-    <section className="mx-auto w-full max-w-7xl">
-      <Card className="border border-risk-red/40 bg-card ring-0">
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <AlertTriangle className="size-5 text-risk-red" aria-hidden="true" />
-            <CardTitle>暂时无法加载风险数据</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-2 text-sm text-muted-foreground">
-          <p>请确认 ChainPilot API 已在本地启动，然后刷新页面。</p>
-          <p className="font-mono text-xs text-foreground/70">{state.message}</p>
-        </CardContent>
-      </Card>
+    <section className="mx-auto w-full max-w-7xl space-y-6">
+      <div className="space-y-2">
+        <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+          评估日期 {state.data.summary.eval_date}
+        </p>
+        <h1 className="text-[length:var(--font-headline-size)] font-semibold tracking-tight">
+          供应风险概览
+        </h1>
+        <p className="text-sm text-muted-foreground">从风险概览发现问题，逐层钻取至物料与 SKU。</p>
+      </div>
+
+      <KpiCards
+        redCount={state.data.summary.red_count}
+        orangeCount={state.data.summary.orange_count}
+        totalGapQty={state.data.summary.total_gap_qty}
+        redOrangePct={state.data.summary.red_orange_pct}
+        lightgbmMape={lightgbmMape}
+        baselineImprovement={baselineImprovement}
+      />
+      <RiskTable initialMaterials={state.data.materials} counts={counts} />
+      <ForecastChart skus={state.data.skus} />
     </section>
   );
 }
