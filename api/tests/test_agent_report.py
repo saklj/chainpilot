@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 from collections.abc import Iterator
 from datetime import date
 from decimal import Decimal
+from pathlib import Path
 
 import duckdb
 import pytest
@@ -242,10 +244,14 @@ def test_report_storage_is_idempotent(
 @pytest.mark.skipif(
     not os.getenv("DEEPSEEK_API_KEY"), reason="DEEPSEEK_API_KEY is not configured"
 )
-def test_real_report_smoke() -> None:
-    report = generate_report(DeepSeekClient())
+def test_real_report_smoke(tmp_path: Path) -> None:
+    """Exercise the production path against a throwaway DB copy: the real
+    chainpilot.duckdb must never be mutated by a test run."""
+    db_copy = tmp_path / "chainpilot.duckdb"
+    shutil.copyfile(database_path(), db_copy)
+    report = generate_report(DeepSeekClient(), db_path=db_copy)
     assert len(report.narrative_fallbacks) < 2
-    connection = duckdb.connect(str(database_path()), read_only=True)
+    connection = duckdb.connect(str(db_copy), read_only=True)
     try:
         data = assemble_report_data(connection)
     finally:
