@@ -14,13 +14,13 @@ if __package__:
     from .glossary import load_glossary, render_glossary
     from .guardrail import GuardrailVerdict, verify_answer
     from .llm import DeepSeekClient, TokenUsage
-    from .nl2sql import ChatLLM, generate_sql
+    from .nl2sql import ChatLLM, FewShot, generate_sql
     from .safe_sql import SafeResult, execute_safe
 else:
     from glossary import load_glossary, render_glossary
     from guardrail import GuardrailVerdict, verify_answer
     from llm import DeepSeekClient, TokenUsage
-    from nl2sql import ChatLLM, generate_sql
+    from nl2sql import ChatLLM, FewShot, generate_sql
     from safe_sql import SafeResult, execute_safe
 
 RefusalReason = Literal[
@@ -196,11 +196,14 @@ def _answer_messages(
 
 
 def answer_question_events(
-    question: str, llm: ChatLLM
+    question: str,
+    llm: ChatLLM,
+    *,
+    few_shots: Sequence[FewShot] | None = None,
 ) -> Iterator[dict[str, Any]]:
     """Yield stage-level chat events while preserving the guarded final contract."""
     yield {"type": "stage", "stage": "generating_sql"}
-    generated = generate_sql(question, llm)
+    generated = generate_sql(question, llm, few_shots)
     if generated.status == "no_answer":
         yield _result_event(
             _response(
@@ -302,10 +305,15 @@ def answer_question_events(
     )
 
 
-def answer_question(question: str, llm: ChatLLM) -> ChatResponse:
+def answer_question(
+    question: str,
+    llm: ChatLLM,
+    *,
+    few_shots: Sequence[FewShot] | None = None,
+) -> ChatResponse:
     """Run the complete chain and return only its guarded terminal result."""
     terminal: dict[str, Any] | None = None
-    for event in answer_question_events(question, llm):
+    for event in answer_question_events(question, llm, few_shots=few_shots):
         if event["type"] == "result":
             terminal = event["result"]
     if terminal is None:  # Defensive: every generator path must yield a result frame.

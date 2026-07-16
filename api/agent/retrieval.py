@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
@@ -11,11 +12,13 @@ from typing import Protocol
 import duckdb
 import numpy as np
 
-from .nl2sql import FewShot
+from .nl2sql import FEW_SHOTS, FewShot
 from .safe_sql import database_path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 QUESTIONS_PATH = REPO_ROOT / "evals" / "questions_50.jsonl"
+LOGGER = logging.getLogger(__name__)
+_DEFAULT_EMBEDDER: BgeEmbedder | None = None
 
 
 class Embedder(Protocol):
@@ -48,6 +51,14 @@ class RetrievedExample:
     def to_few_shot(self) -> FewShot:
         answer = f"```sql\n{self.gold_sql}\n```" if self.gold_sql else "NO_ANSWER"
         return FewShot(self.question, answer)
+
+
+def default_embedder() -> BgeEmbedder:
+    """Return one lazy process-wide embedder so model loading happens at most once."""
+    global _DEFAULT_EMBEDDER
+    if _DEFAULT_EMBEDDER is None:
+        _DEFAULT_EMBEDDER = BgeEmbedder()
+    return _DEFAULT_EMBEDDER
 
 
 def _read_questions(path: str | Path) -> list[dict[str, str]]:
@@ -135,6 +146,30 @@ def retrieve_examples(
             )
         )
     return sorted(scored, key=lambda item: (-item.similarity, item.question_id))[:k]
+
+
+def few_shots_for(
+    connection: duckdb.DuckDBPyConnection,
+    embedder: Embedder,
+    question: str,
+    k: int = 4,
+) -> tuple[FewShot, ...]:
+    """Return retrieved examples plus pinned refusal, or fixed examples on any failure."""
+    try:
+        table_exists = connection.execute(
+            "SELECT count(*) FROM information_schema.tables "
+            "WHERE table_name = 'qa_embedding'"
+        ).fetchone()[0]
+        if not table_exists:
+            raise ValueError("qa_embedding index table does not exist")
+        retrieved = retrieve_examples(connection, embedder, question, k=k)
+        if not retrieved:
+            raise ValueError("retrieval returned no examples")
+        refusal = tuple(shot for shot in FEW_SHOTS if shot.answer == "NO_ANSWER")
+        return tuple(example.to_few_shot() for example in retrieved) + refusal
+    except Exception as error:
+        LOGGER.warning("RAG few-shot retrieval failed; using fixed examples: %s", error)
+        return FEW_SHOTS
 
 
 def main() -> int:
