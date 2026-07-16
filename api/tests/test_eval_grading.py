@@ -9,6 +9,7 @@ import duckdb
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+REAL_DB = REPO_ROOT / "data" / "chainpilot.duckdb"
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
@@ -147,6 +148,7 @@ def test_validate_reports_missing_fields_counts_and_bad_gold_sql(tmp_path: Path)
     assert any("execution_error" in error for error in errors)
 
 
+@pytest.mark.skipif(not REAL_DB.is_file(), reason="real DuckDB fixture is unavailable")
 def test_real_50_question_file_validates_without_llm() -> None:
     assert validate_file(QUESTIONS_PATH) == []
 
