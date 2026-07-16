@@ -16,7 +16,7 @@ type ConversationItem =
   | { id: string; role: "assistant"; state: AssistantMessageState };
 
 const examples = [
-  "当前 RED 风险的物料有几个？",
+  "供应商集中度超过 70% 而且非绿色的物料有哪些？",
   "PN-00003 的缺口是多少？",
   "按 commodity 汇总最新风险。",
 ];
