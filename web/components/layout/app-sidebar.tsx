@@ -35,7 +35,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b border-sidebar-border p-4">
+      <SidebarHeader className="border-b border-sidebar-border p-4 group-data-[collapsible=icon]:p-2">
         <Link href="/" className="flex items-center gap-3 overflow-hidden">
           <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <Orbit className="size-4" aria-hidden="true" />

@@ -1,6 +1,6 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -168,9 +168,19 @@ export function RiskTable({ initialMaterials, counts }: RiskTableProps) {
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
                   placeholder="搜索料号或名称"
-                  className="pl-8"
+                  className="pl-8 pr-8"
                   aria-label="搜索料号或名称"
                 />
+                {search ? (
+                  <button
+                    type="button"
+                    aria-label="清空搜索"
+                    onClick={() => setSearch("")}
+                    className="absolute top-1/2 right-2 -translate-y-1/2 rounded-sm text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    <X className="size-4" aria-hidden="true" />
+                  </button>
+                ) : null}
               </div>
               <Select value={commodity} onValueChange={changeCommodity}>
                 <SelectTrigger className="w-full sm:w-44" aria-label="Commodity 筛选">
@@ -263,12 +273,12 @@ export function RiskTable({ initialMaterials, counts }: RiskTableProps) {
 
       <Sheet open={selectedPn !== null} onOpenChange={(open) => !open && setSelectedPn(null)}>
         <SheetContent className="sm:max-w-2xl">
-          <SheetHeader className="border-b border-border pr-12">
+          <SheetHeader className="border-b border-border px-6 pr-12">
             <SheetTitle>{detail?.material_pn ?? selectedPn ?? "物料详情"}</SheetTitle>
             <SheetDescription>{detail?.material_name ?? "风险钻取详情"}</SheetDescription>
           </SheetHeader>
           <ScrollArea className="min-h-0 flex-1">
-            <div className="space-y-6 p-4">
+            <div className="space-y-6 px-6 py-4">
               {detailError ? (
                 <p className="text-sm text-muted-foreground">详情加载失败：{detailError}</p>
               ) : detail === null ? (
@@ -359,12 +369,14 @@ function DetailTable({
           {emptyText}
         </p>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border">
+        <div className="overflow-x-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
               <TableRow>
                 {headers.map((header) => (
-                  <TableHead key={header}>{header}</TableHead>
+                  <TableHead key={header} className="whitespace-normal">
+                    {header}
+                  </TableHead>
                 ))}
               </TableRow>
             </TableHeader>
@@ -372,7 +384,9 @@ function DetailTable({
               {rows.map((row) => (
                 <TableRow key={row.join("-")}>
                   {row.map((cell, index) => (
-                    <TableCell key={`${index}-${cell}`}>{cell}</TableCell>
+                    <TableCell key={`${index}-${cell}`} className="whitespace-normal break-words">
+                      {cell}
+                    </TableCell>
                   ))}
                 </TableRow>
               ))}
