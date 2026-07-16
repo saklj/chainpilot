@@ -1,0 +1,462 @@
+<title>S1 诊断 Agent · 调用流程</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --surface-2: #eef0f4;
+    --ink: #1a1d23;
+    --muted: #667085;
+    --line: #dde1e8;
+    --accent: #4f63d2;
+    --accent-soft: rgba(79, 99, 210, 0.09);
+    --ok: #1f8a5d;
+    --ok-soft: rgba(31, 138, 93, 0.10);
+    --warn: #b96a1b;
+    --warn-soft: rgba(185, 106, 27, 0.10);
+    --bad: #bb4237;
+    --bad-soft: rgba(187, 66, 55, 0.09);
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI",
+      "Microsoft YaHei", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0e1013;
+      --surface: #16181d;
+      --surface-2: #1d2027;
+      --ink: #e8eaee;
+      --muted: #8a90a0;
+      --line: #272b34;
+      --accent: #7f8ffa;
+      --accent-soft: rgba(127, 143, 250, 0.13);
+      --ok: #4cc38a;
+      --ok-soft: rgba(76, 195, 138, 0.13);
+      --warn: #e0a052;
+      --warn-soft: rgba(224, 160, 82, 0.12);
+      --bad: #e0655c;
+      --bad-soft: rgba(224, 101, 92, 0.12);
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #f6f7f9; --surface: #ffffff; --surface-2: #eef0f4; --ink: #1a1d23;
+    --muted: #667085; --line: #dde1e8; --accent: #4f63d2;
+    --accent-soft: rgba(79, 99, 210, 0.09);
+    --ok: #1f8a5d; --ok-soft: rgba(31, 138, 93, 0.10);
+    --warn: #b96a1b; --warn-soft: rgba(185, 106, 27, 0.10);
+    --bad: #bb4237; --bad-soft: rgba(187, 66, 55, 0.09);
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e1013; --surface: #16181d; --surface-2: #1d2027; --ink: #e8eaee;
+    --muted: #8a90a0; --line: #272b34; --accent: #7f8ffa;
+    --accent-soft: rgba(127, 143, 250, 0.13);
+    --ok: #4cc38a; --ok-soft: rgba(76, 195, 138, 0.13);
+    --warn: #e0a052; --warn-soft: rgba(224, 160, 82, 0.12);
+    --bad: #e0655c; --bad-soft: rgba(224, 101, 92, 0.12);
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.55;
+    margin: 0;
+    padding: 48px 20px 96px;
+  }
+  .page { max-width: 980px; margin: 0 auto; }
+
+  .eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin: 0 0 10px;
+  }
+  h1 {
+    font-size: clamp(26px, 4vw, 34px);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0 0 10px;
+    text-wrap: balance;
+  }
+  .lede { color: var(--muted); max-width: 62ch; margin: 0 0 8px; font-size: 15px; }
+  .meta {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin: 18px 0 0;
+  }
+  .chip {
+    font-size: 12px; font-family: var(--mono);
+    padding: 3px 10px; border-radius: 999px;
+    border: 1px solid var(--line); color: var(--muted);
+    background: var(--surface);
+  }
+  .chip.accent { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, transparent); background: var(--accent-soft); }
+
+  section { margin-top: 56px; }
+  h2 {
+    font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600;
+    margin: 0 0 20px; padding-bottom: 10px;
+    border-bottom: 1px solid var(--line);
+  }
+  h2 .num { color: var(--accent); font-family: var(--mono); margin-right: 8px; }
+
+  /* ---- flow diagram primitives ---- */
+  .flow { display: flex; flex-direction: column; align-items: stretch; }
+  .node {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 18px;
+    position: relative;
+  }
+  .node .t { font-weight: 650; font-size: 14.5px; }
+  .node .d { color: var(--muted); font-size: 13px; margin-top: 3px; }
+  .node code, .tool code, .branch code {
+    font-family: var(--mono); font-size: 12.5px;
+    background: var(--surface-2);
+    padding: 1px 6px; border-radius: 5px;
+  }
+  .connector {
+    align-self: center;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 2px 0;
+  }
+  .connector .stem { width: 2px; height: 22px; background: var(--line); }
+  .connector .head {
+    width: 0; height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid var(--line);
+  }
+  .connector .lbl {
+    font-size: 11.5px; font-family: var(--mono); color: var(--muted);
+    margin: 4px 0;
+  }
+  .connector.strong .stem { background: var(--accent); }
+  .connector.strong .head { border-top-color: var(--accent); }
+  .connector.strong .lbl { color: var(--accent); }
+
+  /* loop container */
+  .loop {
+    border: 1.5px dashed color-mix(in srgb, var(--accent) 55%, transparent);
+    background: var(--accent-soft);
+    border-radius: 14px;
+    padding: 18px;
+    position: relative;
+  }
+  .loop-title {
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .loop-title .t {
+    font-weight: 700; font-size: 14px; color: var(--accent);
+    letter-spacing: 0.02em;
+  }
+  .loop-title .cap { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+  .loop-grid {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    row-gap: 0;
+  }
+  .rail {
+    grid-column: 1;
+    grid-row: 1 / span 7;
+    position: relative;
+    margin: 20px 18px 20px 6px;
+    border-left: 2px solid var(--accent);
+    border-top: 2px solid var(--accent);
+    border-bottom: 2px solid var(--accent);
+    border-radius: 12px 0 0 12px;
+    width: 12px;
+  }
+  .rail::after {  /* arrowhead pointing back into step 1 */
+    content: "";
+    position: absolute; top: -7px; right: -8px;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-left: 9px solid var(--accent);
+  }
+  .rail .rlbl {
+    position: absolute; left: -14px; top: 50%;
+    transform: rotate(180deg) translateY(50%);
+    writing-mode: vertical-rl;
+    font-size: 11px; font-family: var(--mono);
+    color: var(--accent); white-space: nowrap;
+    background: none;
+  }
+  .loop .node { border-color: color-mix(in srgb, var(--accent) 30%, var(--line)); }
+  .loop .node, .loop .connector { grid-column: 2; }
+  .step-tag {
+    font-family: var(--mono); font-size: 11px; color: var(--accent);
+    font-weight: 700; margin-right: 8px;
+  }
+
+  /* side branches */
+  .with-branch { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; grid-column: 2; }
+  .branch {
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 12.5px;
+    border: 1px solid;
+  }
+  .branch .bt { font-weight: 650; font-size: 12.5px; display: block; margin-bottom: 2px; }
+  .branch.warn { border-color: color-mix(in srgb, var(--warn) 45%, transparent); background: var(--warn-soft); color: var(--warn); }
+  .branch.warn .bd { color: var(--muted); }
+  .branch.bad { border-color: color-mix(in srgb, var(--bad) 45%, transparent); background: var(--bad-soft); color: var(--bad); }
+  .branch.bad .bd { color: var(--muted); }
+  .branch.ok { border-color: color-mix(in srgb, var(--ok) 45%, transparent); background: var(--ok-soft); color: var(--ok); }
+  .branch.ok .bd { color: var(--muted); }
+  .branch .bd { display: block; font-weight: 400; }
+  @media (min-width: 760px) {
+    .with-branch { grid-template-columns: minmax(0, 1fr) 280px; align-items: stretch; }
+  }
+
+  /* guardrail fork */
+  .fork {
+    display: grid; gap: 12px; margin-top: 0;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @media (min-width: 760px) { .fork { grid-template-columns: 1fr 1fr; } }
+  .fork .node { border-top: 3px solid var(--line); }
+  .fork .node.pass { border-top-color: var(--ok); }
+  .fork .node.fail { border-top-color: var(--warn); }
+  .verdict {
+    display: inline-block; font-size: 11px; font-family: var(--mono);
+    font-weight: 700; letter-spacing: 0.06em;
+    padding: 2px 8px; border-radius: 5px; margin-bottom: 6px;
+  }
+  .verdict.pass { color: var(--ok); background: var(--ok-soft); }
+  .verdict.fail { color: var(--warn); background: var(--warn-soft); }
+
+  /* tools */
+  .tools {
+    display: grid; gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  }
+  .tool {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 10px; padding: 13px 15px;
+  }
+  .tool .tn { font-family: var(--mono); font-size: 13px; font-weight: 650; color: var(--accent); }
+  .tool .td { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+  .tools-foot {
+    margin-top: 14px; text-align: center;
+    font-size: 12.5px; color: var(--muted);
+  }
+  .tools-foot code { font-family: var(--mono); background: var(--surface-2); padding: 1px 6px; border-radius: 5px; }
+
+  /* workflow decision tree */
+  .tree { display: flex; flex-direction: column; }
+  .q { border-left: 3px solid var(--accent); }
+  .q .yes {
+    margin-top: 8px; font-size: 12.5px;
+    color: var(--ok);
+  }
+  .q .yes code { color: var(--ok); background: var(--ok-soft); }
+
+  /* eval strip */
+  .eval {
+    display: grid; gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+  .stat {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 10px; padding: 14px 16px;
+  }
+  .stat .k { font-size: 12px; color: var(--muted); }
+  .stat .v { font-size: 20px; font-weight: 700; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .stat .v .pending { color: var(--muted); font-weight: 400; font-size: 13px; }
+
+  .footnote {
+    margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line);
+    font-size: 12.5px; color: var(--muted); max-width: 72ch;
+  }
+  .footnote code { font-family: var(--mono); }
+</style>
+
+<div class="page">
+  <header>
+    <p class="eyebrow">ChainPilot · M6-T4</p>
+    <h1>S1 诊断 Agent 调用流程</h1>
+    <p class="lede">
+      回答"这个物料为什么缺？"——LLM 在一个有界循环里自主调用只读工具、顺藤摸瓜查病因，
+      终点结论必须通过证据护栏。任何一步失败都有确定性降级路径：宁可说"未定位"，绝不编造。
+    </p>
+    <div class="meta">
+      <span class="chip accent">max 8 步</span>
+      <span class="chip accent">temperature = 0</span>
+      <span class="chip accent">ReAct 文本协议</span>
+      <span class="chip">DuckDB 只读</span>
+      <span class="chip">零写库</span>
+    </div>
+  </header>
+
+  <section>
+    <h2><span class="num">01</span>主流程 · 有界循环</h2>
+    <div class="flow">
+      <div class="node">
+        <div class="t">入口：待诊断物料 <code>material_pn</code></div>
+        <div class="d">来自风险页的红色物料（如 GT-01 <code>PN-00211</code>）· CLI <code>python -m agent.diagnose</code>，T4b 将接入物料详情页按钮</div>
+      </div>
+      <div class="connector"><div class="stem"></div><div class="head"></div></div>
+      <div class="node">
+        <div class="t">组装 System Prompt</div>
+        <div class="d">5 个工具的说明 + 5 个归因类别枚举 + JSON 输出契约——全部从代码常量生成，单一来源，prompt 与代码不可能漂移</div>
+      </div>
+      <div class="connector"><div class="stem"></div><div class="head"></div></div>
+
+      <div class="loop">
+        <div class="loop-title">
+          <span class="t">有界循环</span>
+          <span class="cap">max 8 步 · 每步一次 LLM 调用 · 第 8 步强制收敛</span>
+        </div>
+        <div class="loop-grid">
+          <div class="rail"><span class="rlbl">observation 回填对话 ↻</span></div>
+
+          <div class="node">
+            <div class="t"><span class="step-tag">①</span>LLM 输出下一步动作（DeepSeek）</div>
+            <div class="d">只允许一个 JSON 对象：<code>{"thought", "action", "args"}</code>，或 <code>{"action": "final", "category", "root_cause"}</code></div>
+          </div>
+          <div class="connector"><div class="stem"></div><div class="head"></div></div>
+
+          <div class="with-branch">
+            <div class="node">
+              <div class="t"><span class="step-tag">②</span>解析器提取 JSON</div>
+              <div class="d">代码解析，不靠模型自觉遵守格式</div>
+            </div>
+            <div class="branch warn">
+              <span class="bt">解析失败 → 纠错重试 ×1</span>
+              <span class="bd">把错误信息喂回模型再给一次机会；连续两次失败 → 终止为 unknown 降级结论</span>
+            </div>
+          </div>
+          <div class="connector"><div class="stem"></div><div class="head"></div></div>
+
+          <div class="with-branch">
+            <div class="node">
+              <div class="t"><span class="step-tag">③</span>分发：<code>action</code> 是工具还是 final？</div>
+              <div class="d">工具 → 在只读连接上执行（见 02 节工具箱）；final → 携带结论跳出循环</div>
+            </div>
+            <div class="branch ok">
+              <span class="bt">action = final → 跳出循环</span>
+              <span class="bd">进入终点护栏（03 节）</span>
+            </div>
+          </div>
+          <div class="connector"><div class="stem"></div><div class="head"></div></div>
+
+          <div class="with-branch">
+            <div class="node">
+              <div class="t"><span class="step-tag">④</span>observation 追加到对话，回到 ①</div>
+              <div class="d">工具返回的紧凑文本渲染成为模型下一步推理的证据</div>
+            </div>
+            <div class="branch bad">
+              <span class="bt">第 8 步仍未 final → 强制收敛</span>
+              <span class="bd"><code>category = unknown</code>，root_cause 由代码从 trace 确定性拼出"未定位，已排除 X / Y"</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="connector strong"><div class="stem"></div><div class="lbl">final: category + root_cause</div><div class="stem"></div><div class="head"></div></div>
+
+      <div class="node" style="border-color: color-mix(in srgb, var(--accent) 45%, var(--line));">
+        <div class="t">终点证据护栏 <code>verify_answer</code></div>
+        <div class="d">全部工具 observation 拼成合成证据集；结论里的每个数字必须能在其中找到——与周报护栏同一套代码、同一个哲学</div>
+      </div>
+      <div class="connector"><div class="stem"></div><div class="head"></div></div>
+
+      <div class="fork">
+        <div class="node pass">
+          <span class="verdict pass">PASS</span>
+          <div class="t">DiagnosisResult</div>
+          <div class="d"><code>category</code> · <code>root_cause</code>（人话归因，引用真实数字）· 完整 trace · token 用量</div>
+        </div>
+        <div class="node fail">
+          <span class="verdict fail">FAIL → 降级</span>
+          <div class="t">确定性模板替换</div>
+          <div class="d">root_cause 换成按 category 的模板句，数字全部取自 trace；<code>degraded = True</code> 如实标记</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">02</span>工具箱 · 5 个只读工具</h2>
+    <div class="tools">
+      <div class="tool">
+        <div class="tn">get_risk_detail</div>
+        <div class="td">当期风险行 + 供应画像（供应商数 / 最短交期 / 集中度）+ 最新库存</div>
+      </div>
+      <div class="tool">
+        <div class="tn">get_po_status</div>
+        <div class="td">在途 PO 明细，按"缺口日前 / 地平线内 / 地平线外"分桶——追料够不够一眼可判</div>
+      </div>
+      <div class="tool">
+        <div class="tn">get_shared_demand</div>
+        <div class="td">地平线内消耗该料的 SKU 需求分解——共用料竞争的直接证据</div>
+      </div>
+      <div class="tool">
+        <div class="tn">get_forecast_error</div>
+        <div class="td">模型级预测精度摘要（粒度粗，仅够排除"预测不可信"）</div>
+      </div>
+      <div class="tool">
+        <div class="tn">query_sql</div>
+        <div class="td">兜底自由查询，包 <code>execute_safe</code>——白名单表、强制 LIMIT、只读</div>
+      </div>
+    </div>
+    <p class="tools-foot">全部工具 → <code>DuckDB read_only 连接</code>，Agent 在架构上不具备写库能力</p>
+  </section>
+
+  <section>
+    <h2><span class="num">03</span>对照组 · workflow 决策树（人类计划员 SOP 写死成代码）</h2>
+    <div class="flow tree">
+      <div class="node q">
+        <div class="t">单源供货，且在途覆盖不足？</div>
+        <div class="yes">是 → <code>single_source_supply</code>（单源断供）</div>
+      </div>
+      <div class="connector"><div class="lbl">否 ↓</div><div class="stem"></div><div class="head"></div></div>
+      <div class="node q">
+        <div class="t">多 SKU 共用该料，且库存薄？</div>
+        <div class="yes">是 → <code>shared_demand_competition</code>（共用料冲突）</div>
+      </div>
+      <div class="connector"><div class="lbl">否 ↓</div><div class="stem"></div><div class="head"></div></div>
+      <div class="node q">
+        <div class="t">交期超出 28 天地平线，且零在途？</div>
+        <div class="yes">是 → <code>long_leadtime_no_po</code>（长交期追料不及）</div>
+      </div>
+      <div class="connector"><div class="lbl">否 ↓</div><div class="stem"></div><div class="head"></div></div>
+      <div class="node">
+        <div class="t"><code>unknown</code></div>
+        <div class="d">规则覆盖不到 → 如实未定位。硬要求：10 个 ground-truth 场景必须 10/10 命中——它同时是工具层正确性的活体测试</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">04</span>评测 · 两种范式同台</h2>
+    <div class="eval">
+      <div class="stat">
+        <div class="k">评测集</div>
+        <div class="v">10 个 GT 场景</div>
+      </div>
+      <div class="stat">
+        <div class="k">workflow 版命中率（硬要求）</div>
+        <div class="v">10 / 10</div>
+      </div>
+      <div class="stat">
+        <div class="k">Agent 版命中率（达标线 ≥ 8/10）</div>
+        <div class="v"><span class="pending">验收时实测</span></div>
+      </div>
+      <div class="stat">
+        <div class="k">平均步数 · 单次成本</div>
+        <div class="v"><span class="pending">验收时实测</span></div>
+      </div>
+    </div>
+    <p class="footnote">
+      病因三类：单源断供 ×4 · 共用料冲突 ×3 · 长交期 ×3（<code>data/ground_truth_scenarios.json</code>，标签注入时已知）。
+      路径指标（步数 / 成本）报均值 ± 区间；命中率只评终点，规避循环路径不可复现的问题。
+      这组对比数字回答的面试问题是："什么时候该上自主 Agent，什么时候写死 workflow 就够了"。
+      设计出处：<code>docs/04_Agent架构取舍与自主循环演进.md</code> §3 · 任务卡 <code>docs/prompts/m6-t4_S1诊断Agent.md</code>。
+    </p>
+  </section>
+</div>
