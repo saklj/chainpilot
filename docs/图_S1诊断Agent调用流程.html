@@ -444,18 +444,20 @@
         <div class="v">10 / 10</div>
       </div>
       <div class="stat">
-        <div class="k">Agent 版命中率（达标线 ≥ 8/10）</div>
-        <div class="v"><span class="pending">验收时实测</span></div>
+        <div class="k">Agent 版命中率（×3 遍实测）</div>
+        <div class="v">30 / 30</div>
       </div>
       <div class="stat">
-        <div class="k">平均步数 · 单次成本</div>
-        <div class="v"><span class="pending">验收时实测</span></div>
+        <div class="k">平均步数 · 单场景成本</div>
+        <div class="v">4.0 <span class="pending">[3, 5] · ≈¥0.004</span></div>
       </div>
     </div>
     <p class="footnote">
       病因三类：单源断供 ×4 · 共用料冲突 ×3 · 长交期 ×3（<code>data/ground_truth_scenarios.json</code>，标签注入时已知）。
       路径指标（步数 / 成本）报均值 ± 区间；命中率只评终点，规避循环路径不可复现的问题。
-      这组对比数字回答的面试问题是："什么时候该上自主 Agent，什么时候写死 workflow 就够了"。
+      命中率经三轮 rubric 迭代（裸类别名 47% → 补定义 63% → 补消歧优先级 100%，三版结果均留档
+      <code>evals/results/</code>）——决定成败的是"给分类器一份和人类同样的评分细则"，而非循环本身。
+      两版同台的结论："同一份 rubric 下，Agent 以 1.3 倍步数换来自主取证与人话归因；规则可写死的场景 workflow 更便宜。"
       设计出处：<code>docs/04_Agent架构取舍与自主循环演进.md</code> §3 · 任务卡 <code>docs/prompts/m6-t4_S1诊断Agent.md</code>。
     </p>
   </section>
