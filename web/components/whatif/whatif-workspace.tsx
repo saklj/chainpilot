@@ -49,6 +49,7 @@ export function WhatIfWorkspace({ suppliers }: { suppliers: WhatIfSupplier[] }) 
   const [error, setError] = useState<string | null>(null);
   const days = Number(daysInput);
   const daysValid = Number.isInteger(days) && days >= 1 && days <= 28;
+  const showDaysError = daysInput !== "" && !daysValid;
 
   async function runSimulation() {
     if (!supplierId || !daysValid || loading) return;
@@ -107,7 +108,13 @@ export function WhatIfWorkspace({ suppliers }: { suppliers: WhatIfSupplier[] }) 
               max={28}
               value={daysInput}
               onChange={(event) => setDaysInput(event.target.value)}
+              aria-invalid={showDaysError}
             />
+            {showDaysError ? (
+              <p className="text-xs text-destructive">
+                请输入 1~28 的整数：28 天是预测地平线上限，更长的断供无法推演。
+              </p>
+            ) : null}
           </label>
           <Button
             onClick={() => void runSimulation()}
