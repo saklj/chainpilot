@@ -239,11 +239,13 @@ def test_report_by_date_matches_latest_and_returns_structured_404(
     assert dated.status_code == 200
     assert dated.json() == latest.json()
 
-    missing = client.get("/api/report/2016-05-15")
+    # 2015-01-01 predates all risk snapshots, so it stays absent even after
+    # historical report backfills; nearby dates like 2016-05-15 may exist.
+    missing = client.get("/api/report/2015-01-01")
     assert missing.status_code == 404
     assert missing.json()["detail"] == {
         "code": "report_not_found",
-        "message": "Weekly report 2016-05-15 not found",
+        "message": "Weekly report 2015-01-01 not found",
     }
 
 
@@ -268,6 +270,6 @@ def test_report_workbook_has_typed_four_sheet_export_and_404(
     assert type(red_count) is int
     assert isinstance(workbook["供应商敞口"]["D2"].value, (int, float))
 
-    missing = client.get("/api/report/2016-05-15/xlsx")
+    missing = client.get("/api/report/2015-01-01/xlsx")
     assert missing.status_code == 404
     assert missing.json()["detail"]["code"] == "report_not_found"

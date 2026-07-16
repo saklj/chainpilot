@@ -126,12 +126,31 @@ def _optional_date(value: Any) -> date | None:
     return None if value is None else _as_date(value)
 
 
-def assemble_report_data(connection: duckdb.DuckDBPyConnection) -> ReportData:
-    """Load the latest risk snapshot and every deterministic weekly-report section."""
-    latest = connection.execute("SELECT max(eval_date) FROM material_risk").fetchone()[0]
-    if latest is None:
-        raise ValueError("material_risk is empty; cannot generate a weekly report")
-    report_date = _as_date(latest)
+def assemble_report_data(
+    connection: duckdb.DuckDBPyConnection, report_date: date | None = None
+) -> ReportData:
+    """Load one risk snapshot and every deterministic weekly-report section."""
+    if report_date is None:
+        latest = connection.execute("SELECT max(eval_date) FROM material_risk").fetchone()[0]
+        if latest is None:
+            raise ValueError("material_risk is empty; cannot generate a weekly report")
+        report_date = _as_date(latest)
+    else:
+        available = connection.execute(
+            "SELECT min(eval_date), max(eval_date), "
+            "count(*) FILTER (WHERE eval_date = ?) FROM material_risk",
+            [report_date],
+        ).fetchone()
+        first_date, last_date, matching_rows = available
+        if matching_rows == 0:
+            if first_date is None:
+                available_range = "empty"
+            else:
+                available_range = f"{first_date.isoformat()} to {last_date.isoformat()}"
+            raise ValueError(
+                f"No material_risk snapshot for {report_date.isoformat()}; "
+                f"available date range: {available_range}"
+            )
 
     counts = connection.execute(
         "SELECT "
@@ -593,13 +612,14 @@ def generate_report(
     *,
     connection: duckdb.DuckDBPyConnection | None = None,
     db_path: str | Path | None = None,
+    report_date: date | None = None,
 ) -> ReportResult:
     """Generate and persist a weekly report; narrative failures always degrade safely."""
     owns_connection = connection is None
     if connection is None:
         connection = duckdb.connect(str(db_path or database_path()))
     try:
-        data = assemble_report_data(connection)
+        data = assemble_report_data(connection, report_date)
         overview, recommendations, fallbacks, usage = _guarded_narratives(data, llm)
         result = ReportResult(
             report_date=data.report_date,
@@ -614,14 +634,65 @@ def generate_report(
             connection.close()
 
 
+def backfill_reports(
+    llm: ReportLLM | None = None,
+    *,
+    connection: duckdb.DuckDBPyConnection | None = None,
+    db_path: str | Path | None = None,
+) -> list[ReportResult]:
+    """Generate reports for risk dates that do not already have a stored report."""
+    owns_connection = connection is None
+    if connection is None:
+        connection = duckdb.connect(str(db_path or database_path()))
+    try:
+        report_table_exists = connection.execute(
+            "SELECT count(*) FROM information_schema.tables "
+            "WHERE table_name = 'weekly_report'"
+        ).fetchone()[0]
+        if report_table_exists:
+            missing_dates = connection.execute(
+                "SELECT DISTINCT r.eval_date FROM material_risk r "
+                "WHERE NOT EXISTS ("
+                "SELECT 1 FROM weekly_report w WHERE w.report_date = r.eval_date"
+                ") ORDER BY r.eval_date"
+            ).fetchall()
+        else:
+            missing_dates = connection.execute(
+                "SELECT DISTINCT eval_date FROM material_risk ORDER BY eval_date"
+            ).fetchall()
+        return [
+            generate_report(llm, connection=connection, report_date=_as_date(row[0]))
+            for row in missing_dates
+        ]
+    finally:
+        if owns_connection:
+            connection.close()
+
+
+def _print_result_summary(result: ReportResult) -> None:
+    fallbacks = ", ".join(result.narrative_fallbacks) or "无"
+    print(
+        f"report_date={result.report_date.isoformat()} / 降级段落={fallbacks} / "
+        f"tokens={result.usage.total_tokens}"
+    )
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Generate the ChainPilot weekly risk report")
     parser.add_argument(
         "--no-llm", action="store_true", help="use deterministic narrative fallbacks"
     )
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--report-date", type=date.fromisoformat, metavar="YYYY-MM-DD")
+    mode.add_argument("--backfill", action="store_true")
     args = parser.parse_args(argv)
     llm = None if args.no_llm else DeepSeekClient()
-    result = generate_report(llm)
+    if args.backfill:
+        for result in backfill_reports(llm):
+            _print_result_summary(result)
+        return 0
+
+    result = generate_report(llm, report_date=args.report_date)
     print(result.content_md)
     print("降级段落：" + (", ".join(result.narrative_fallbacks) or "无"))
     print(

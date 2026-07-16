@@ -52,15 +52,16 @@ def report_list(connection: Db) -> list[dict[str, str]]:
 
 @router.get("/{report_date}/xlsx")
 def report_workbook(report_date: date, connection: Db) -> Response:
-    data = assemble_report_data(connection)
-    if report_date != data.report_date:
+    try:
+        data = assemble_report_data(connection, report_date)
+    except ValueError as error:
         raise HTTPException(
             status_code=404,
             detail={
                 "code": "report_not_found",
                 "message": f"No risk snapshot available for {report_date.isoformat()}",
             },
-        )
+        ) from error
     return Response(
         content=build_report_workbook(data),
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

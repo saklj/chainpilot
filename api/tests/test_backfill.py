@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import shutil
+from datetime import timedelta
 from pathlib import Path
 
 import duckdb
@@ -34,6 +35,10 @@ def test_backfill_smoke_is_complete_idempotent_and_enables_comparison(
     connection = duckdb.connect(str(db_copy))
     try:
         anchor = connection.execute("SELECT MAX(date) FROM sales_daily").fetchone()[0]
+        # The real DB may already hold backfilled history; clear the one cutoff this
+        # test regenerates so its assertions stay independent of prior backfills.
+        cutoff = anchor - timedelta(days=7)
+        connection.execute("DELETE FROM material_risk WHERE eval_date = ?", [cutoff])
         dates_before = {
             row[0]
             for row in connection.execute(
