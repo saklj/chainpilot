@@ -216,6 +216,48 @@ export const ReportMetaSchema = z.object({
 });
 export type ReportMeta = z.infer<typeof ReportMetaSchema>;
 
+export const WhatIfSupplierSchema = z.object({
+  supplier_id: z.string(),
+  supplier_name: z.string(),
+  red_orange_material_count: z.number().int(),
+  weighted_gap_qty: z.number(),
+});
+export type WhatIfSupplier = z.infer<typeof WhatIfSupplierSchema>;
+
+export const WhatIfSummarySchema = z.object({
+  baseline_red_count: z.number().int(),
+  baseline_orange_count: z.number().int(),
+  new_red_count: z.number().int(),
+  new_orange_count: z.number().int(),
+  total_gap_delta: z.number().int(),
+  affected_sku_count: z.number().int(),
+  exposure_amount: z.number(),
+});
+
+export const WhatIfMaterialSchema = z.object({
+  material_pn: z.string(),
+  baseline_level: RiskLevelSchema,
+  scenario_level: RiskLevelSchema,
+  baseline_gap: z.number().int(),
+  scenario_gap: z.number().int(),
+  gap_delta: z.number().int(),
+  split_pct: z.number(),
+});
+
+export const WhatIfSkuSchema = z.object({
+  sku_id: z.string(),
+  affected_units: z.number(),
+  unit_price: z.number(),
+  exposure_amount: z.number(),
+});
+
+export const WhatIfResultSchema = z.object({
+  summary: WhatIfSummarySchema,
+  worsened_materials: z.array(WhatIfMaterialSchema),
+  affected_skus: z.array(WhatIfSkuSchema),
+});
+export type WhatIfResult = z.infer<typeof WhatIfResultSchema>;
+
 export const ValidationErrorSchema = z.object({
   loc: z.array(z.union([z.string(), z.number().int()])),
   msg: z.string(),

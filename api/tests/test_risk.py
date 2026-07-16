@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 from pathlib import Path
 
 import duckdb
@@ -179,9 +180,13 @@ def test_explain_red_contains_computed_date_and_shortage() -> None:
 
 
 @pytest.mark.skipif(not REAL_DB.is_file(), reason="real DuckDB fixture is unavailable")
-def test_real_engine_recalls_all_ground_truth_and_builds_views() -> None:
+def test_real_engine_recalls_all_ground_truth_and_builds_views(tmp_path: Path) -> None:
     """The real engine recalls every GT scenario and persists complete deterministic rows."""
-    connection = duckdb.connect(str(REAL_DB))
+    # run_risk_engine rewrites the current material_risk snapshot; even though the
+    # deterministic engine reproduces identical rows, tests must never write the real DB.
+    db_copy = tmp_path / "chainpilot.duckdb"
+    shutil.copyfile(REAL_DB, db_copy)
+    connection = duckdb.connect(str(db_copy))
     try:
         risks = run_risk_engine(connection)
         truth = json.loads((REPO_ROOT / "data" / "ground_truth_scenarios.json").read_text())

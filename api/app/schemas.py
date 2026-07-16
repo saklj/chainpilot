@@ -154,3 +154,50 @@ class Report(BaseModel):
 class ReportMeta(BaseModel):
     report_date: str
     created_at: str
+
+
+class WhatIfSupplier(BaseModel):
+    supplier_id: str
+    supplier_name: str
+    red_orange_material_count: int
+    weighted_gap_qty: float
+
+
+class WhatIfRequest(BaseModel):
+    supplier_id: str
+    # Capped at the 28-day forecast horizon: beyond it the engine cannot see additional
+    # demand, so longer outages would silently return identical (understated) results.
+    days: int = Field(default=14, ge=1, le=28)
+
+
+class WhatIfSummary(BaseModel):
+    baseline_red_count: int
+    baseline_orange_count: int
+    new_red_count: int
+    new_orange_count: int
+    total_gap_delta: int
+    affected_sku_count: int
+    exposure_amount: float
+
+
+class WhatIfMaterial(BaseModel):
+    material_pn: str
+    baseline_level: Literal["RED", "ORANGE", "YELLOW", "GREEN"]
+    scenario_level: Literal["RED", "ORANGE", "YELLOW", "GREEN"]
+    baseline_gap: int
+    scenario_gap: int
+    gap_delta: int
+    split_pct: float
+
+
+class WhatIfSku(BaseModel):
+    sku_id: str
+    affected_units: float
+    unit_price: float
+    exposure_amount: float
+
+
+class WhatIfResponse(BaseModel):
+    summary: WhatIfSummary
+    worsened_materials: list[WhatIfMaterial]
+    affected_skus: list[WhatIfSku]

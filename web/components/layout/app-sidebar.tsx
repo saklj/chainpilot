@@ -1,6 +1,12 @@
 "use client";
 
-import { BotMessageSquare, ChartNoAxesCombined, FileText, Orbit } from "lucide-react";
+import {
+  BotMessageSquare,
+  ChartNoAxesCombined,
+  FileText,
+  FlaskConical,
+  Orbit,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -21,6 +27,7 @@ const navigation = [
   { href: "/", label: "看板", icon: ChartNoAxesCombined },
   { href: "/chat", label: "Chat 问数", icon: BotMessageSquare },
   { href: "/report", label: "周报", icon: FileText },
+  { href: "/whatif", label: "What-if 模拟", icon: FlaskConical },
 ] as const;
 
 export function AppSidebar() {

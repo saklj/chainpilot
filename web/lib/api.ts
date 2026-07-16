@@ -10,6 +10,8 @@ import {
   RiskSummarySchema,
   SkuForecastSchema,
   SkuInfoSchema,
+  WhatIfResultSchema,
+  WhatIfSupplierSchema,
   type ChatResult,
   type ForecastMetric,
   type MaterialRisk,
@@ -19,6 +21,8 @@ import {
   type RiskSummary,
   type SkuForecast,
   type SkuInfo,
+  type WhatIfResult,
+  type WhatIfSupplier,
 } from "@/lib/schemas";
 
 export const API_BASE = (process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8000").replace(
@@ -128,4 +132,18 @@ export async function getReportWorkbook(reportDate: string): Promise<Blob> {
 
 export function getReportList(): Promise<ReportMeta[]> {
   return request("/api/report/list", z.array(ReportMetaSchema));
+}
+
+export function getWhatIfSuppliers(): Promise<WhatIfSupplier[]> {
+  return request("/api/whatif/suppliers", z.array(WhatIfSupplierSchema));
+}
+
+export function simulateSupplierOutage(
+  supplierId: string,
+  days: number,
+): Promise<WhatIfResult> {
+  return request("/api/whatif/simulate", WhatIfResultSchema, {
+    method: "POST",
+    body: JSON.stringify({ supplier_id: supplierId, days }),
+  });
 }
