@@ -41,13 +41,17 @@ const levelStyles = {
 
 export function WhatIfWorkspace({ suppliers }: { suppliers: WhatIfSupplier[] }) {
   const [supplierId, setSupplierId] = useState(suppliers[0]?.supplier_id ?? "");
-  const [days, setDays] = useState(14);
+  // Keep the raw text so clearing the field never coerces to 0 (which the browser
+  // would then render as a stray leading zero once the user types again).
+  const [daysInput, setDaysInput] = useState("14");
   const [result, setResult] = useState<WhatIfResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const days = Number(daysInput);
+  const daysValid = Number.isInteger(days) && days >= 1 && days <= 28;
 
   async function runSimulation() {
-    if (!supplierId || days < 1 || days > 28 || loading) return;
+    if (!supplierId || !daysValid || loading) return;
     setLoading(true);
     setError(null);
     try {
@@ -101,11 +105,14 @@ export function WhatIfWorkspace({ suppliers }: { suppliers: WhatIfSupplier[] }) 
               type="number"
               min={1}
               max={28}
-              value={days}
-              onChange={(event) => setDays(Number(event.target.value))}
+              value={daysInput}
+              onChange={(event) => setDaysInput(event.target.value)}
             />
           </label>
-          <Button onClick={() => void runSimulation()} disabled={!supplierId || loading}>
+          <Button
+            onClick={() => void runSimulation()}
+            disabled={!supplierId || !daysValid || loading}
+          >
             {loading ? <LoaderCircle className="animate-spin" aria-hidden="true" /> : <FlaskConical />}
             {loading ? "模拟中…" : "模拟"}
           </Button>
