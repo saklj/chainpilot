@@ -29,6 +29,20 @@ CATEGORIES: tuple[Category, ...] = (
     "forecast_miss",
     "unknown",
 )
+# Category rubric injected into the system prompt, shared with the workflow baseline so
+# both paradigms judge by the same rules. Eval iterations (all preserved in
+# evals/results/): bare slugs 14/30 -> definitions without precedence 19/30 (categories
+# genuinely overlap on evidence, e.g. a shared material can also have a 78-day lead
+# time) -> definitions with the disambiguation precedence below. The precedence mirrors
+# the ground-truth injection recipes, not per-question answer fitting.
+CATEGORY_DEFS: dict[Category, str] = {
+    "shared_demand_competition": "多个 SKU 共用该物料（sku_count>1），需求叠加压薄库存。"
+    "只要 sku_count>1 即优先判本类，即使交期也很长",
+    "single_source_supply": "供应商数=1 的单源依赖，存在在途 PO 但数量或时点不足以补缺口",
+    "long_leadtime_no_po": "完全没有任何在途 PO，且最短交期超过 28 天地平线，追料不及",
+    "forecast_miss": "预测精度显著不可信，缺口可能是假象",
+    "unknown": "证据不足或均不符合上述模式",
+}
 TOOL_SPECS = {
     "get_risk_detail": "args: material_pn; current risk, supply profile and inventory",
     "get_po_status": "args: material_pn; future PO details and timing buckets",
@@ -153,10 +167,10 @@ def query_sql(connection: duckdb.DuckDBPyConnection, sql: str) -> ToolObservatio
 
 def _system_prompt() -> str:
     tools = "\n".join(f"- {name}: {description}" for name, description in TOOL_SPECS.items())
-    categories = ", ".join(CATEGORIES)
+    categories = "\n".join(f"- {name}: {definition}" for name, definition in CATEGORY_DEFS.items())
     return (
         "你是只读供应链缺料诊断 Agent。每步只输出一个 JSON 对象，不要 markdown。\n"
-        f"工具：\n{tools}\n类别：{categories}\n"
+        f"工具：\n{tools}\n类别定义（按定义判断，勿凭名称猜测）：\n{categories}\n"
         '行动格式：{"thought":"...","action":"工具名","args":{...}}\n'
         '结论格式：{"action":"final","category":"类别","root_cause":"引用工具数字的一段归因"}'
     )

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-16T10:54:07.759909+00:00",
+  "generated_at": "2026-07-16T10:39:02.072538+00:00",
   "parameters": {
     "with_llm": true,
     "repeat": 3
@@ -12,10 +12,10 @@
       "expected": "single_source_supply",
       "workflow_category": "single_source_supply",
       "workflow_steps": 3,
-      "agent_category": "single_source_supply",
+      "agent_category": "long_leadtime_no_po",
       "agent_steps": 5,
-      "prompt_tokens": 3006,
-      "completion_tokens": 1044
+      "prompt_tokens": 2831,
+      "completion_tokens": 841
     },
     {
       "repeat": 1,
@@ -24,10 +24,10 @@
       "expected": "single_source_supply",
       "workflow_category": "single_source_supply",
       "workflow_steps": 3,
-      "agent_category": "single_source_supply",
-      "agent_steps": 4,
-      "prompt_tokens": 2234,
-      "completion_tokens": 828
+      "agent_category": "forecast_miss",
+      "agent_steps": 6,
+      "prompt_tokens": 3496,
+      "completion_tokens": 1517
     },
     {
       "repeat": 1,
@@ -36,10 +36,10 @@
       "expected": "single_source_supply",
       "workflow_category": "single_source_supply",
       "workflow_steps": 3,
-      "agent_category": "single_source_supply",
+      "agent_category": "long_leadtime_no_po",
       "agent_steps": 4,
-      "prompt_tokens": 2239,
-      "completion_tokens": 1006
+      "prompt_tokens": 2231,
+      "completion_tokens": 1552
     },
     {
       "repeat": 1,
@@ -48,10 +48,10 @@
       "expected": "single_source_supply",
       "workflow_category": "single_source_supply",
       "workflow_steps": 3,
-      "agent_category": "single_source_supply",
-      "agent_steps": 4,
-      "prompt_tokens": 2163,
-      "completion_tokens": 906
+      "agent_category": "long_leadtime_no_po",
+      "agent_steps": 5,
+      "prompt_tokens": 2552,
+      "completion_tokens": 652
     },
     {
       "repeat": 1,
@@ -62,8 +62,8 @@
       "workflow_steps": 3,
       "agent_category": "shared_demand_competition",
       "agent_steps": 4,
-      "prompt_tokens": 2466,
-      "completion_tokens": 588
+      "prompt_tokens": 1958,
+      "completion_tokens": 651
     },
     {
       "repeat": 1,
@@ -74,8 +74,8 @@
       "workflow_steps": 3,
       "agent_category": "shared_demand_competition",
       "agent_steps": 4,
-      "prompt_tokens": 2437,
-      "completion_tokens": 589
+      "prompt_tokens": 2282,
+      "completion_tokens": 831
     },
     {
       "repeat": 1,
@@ -84,10 +84,10 @@
       "expected": "shared_demand_competition",
       "workflow_category": "shared_demand_competition",
       "workflow_steps": 3,
-      "agent_category": "shared_demand_competition",
-      "agent_steps": 3,
-      "prompt_tokens": 1725,
-      "completion_tokens": 623
+      "agent_category": "long_leadtime_no_po",
+      "agent_steps": 5,
+      "prompt_tokens": 3066,
+      "completion_tokens": 1143
     },
     {
       "repeat": 1,
@@ -97,9 +97,9 @@
       "workflow_category": "long_leadtime_no_po",
       "workflow_steps": 3,
       "agent_category": "long_leadtime_no_po",
-      "agent_steps": 4,
-      "prompt_tokens": 2112,
-      "completion_tokens": 705
+      "agent_steps": 5,
+      "prompt_tokens": 2299,
+      "completion_tokens": 559
     },
     {
       "repeat": 1,
@@ -110,8 +110,8 @@
       "workflow_steps": 3,
       "agent_category": "long_leadtime_no_po",
       "agent_steps": 4,
-      "prompt_tokens": 2162,
-      "completion_tokens": 767
+      "prompt_tokens": 1441,
+      "completion_tokens": 506
     },
     {
       "repeat": 1,
@@ -122,8 +122,8 @@
       "workflow_steps": 3,
       "agent_category": "long_leadtime_no_po",
       "agent_steps": 4,
-      "prompt_tokens": 2111,
-      "completion_tokens": 638
+      "prompt_tokens": 1568,
+      "completion_tokens": 426
     },
     {
       "repeat": 2,
@@ -132,10 +132,10 @@
       "expected": "single_source_supply",
       "workflow_category": "single_source_supply",
       "workflow_steps": 3,
-      "agent_category": "single_source_supply",
-      "agent_steps": 4,
-      "prompt_tokens": 3097,
-      "completion_tokens": 1184
+      "agent_category": "long_leadtime_no_po",
+      "agent_steps": 3,
+      "prompt_tokens": 1073,
+      "completion_tokens": 718
     },
     {
       "repeat": 2,
@@ -144,10 +144,10 @@
       "expected": "single_source_supply",
       "workflow_category": "single_source_supply",
       "workflow_steps": 3,
-      "agent_category": "single_source_supply",
+      "agent_category": "long_leadtime_no_po",
       "agent_steps": 4,
-      "prompt_tokens": 2166,
-      "completion_tokens": 1032
+      "prompt_tokens": 1646,
+      "completion_tokens": 491
     },
     {
       "repeat": 2,
@@ -156,10 +156,10 @@
       "expected": "single_source_supply",
       "workflow_category": "single_source_supply",
       "workflow_steps": 3,
-      "agent_category": "single_source_supply",
+      "agent_category": "long_leadtime_no_po",
       "agent_steps": 4,
-      "prompt_tokens": 2103,
-      "completion_tokens": 854
+      "prompt_tokens": 1697,
+      "completion_tokens": 562
     },
     {
       "repeat": 2,
@@ -168,10 +168,10 @@
       "expected": "single_source_supply",
       "workflow_category": "single_source_supply",
       "workflow_steps": 3,
-      "agent_category": "single_source_supply",
-      "agent_steps": 4,
-      "prompt_tokens": 2146,
-      "completion_tokens": 746
+      "agent_category": "long_leadtime_no_po",
+      "agent_steps": 5,
+      "prompt_tokens": 2469,
+      "completion_tokens": 1090
     },
     {
       "repeat": 2,
@@ -182,8 +182,8 @@
       "workflow_steps": 3,
       "agent_category": "shared_demand_competition",
       "agent_steps": 4,
-      "prompt_tokens": 2485,
-      "completion_tokens": 676
+      "prompt_tokens": 1955,
+      "completion_tokens": 825
     },
     {
       "repeat": 2,
@@ -192,10 +192,10 @@
       "expected": "shared_demand_competition",
       "workflow_category": "shared_demand_competition",
       "workflow_steps": 3,
-      "agent_category": "shared_demand_competition",
-      "agent_steps": 3,
-      "prompt_tokens": 1550,
-      "completion_tokens": 398
+      "agent_category": "long_leadtime_no_po",
+      "agent_steps": 4,
+      "prompt_tokens": 1814,
+      "completion_tokens": 682
     },
     {
       "repeat": 2,
@@ -204,10 +204,10 @@
       "expected": "shared_demand_competition",
       "workflow_category": "shared_demand_competition",
       "workflow_steps": 3,
-      "agent_category": "shared_demand_competition",
+      "agent_category": "long_leadtime_no_po",
       "agent_steps": 4,
-      "prompt_tokens": 2492,
-      "completion_tokens": 864
+      "prompt_tokens": 2016,
+      "completion_tokens": 608
     },
     {
       "repeat": 2,
@@ -218,8 +218,8 @@
       "workflow_steps": 3,
       "agent_category": "long_leadtime_no_po",
       "agent_steps": 4,
-      "prompt_tokens": 2123,
-      "completion_tokens": 665
+      "prompt_tokens": 1669,
+      "completion_tokens": 729
     },
     {
       "repeat": 2,
@@ -229,9 +229,9 @@
       "workflow_category": "long_leadtime_no_po",
       "workflow_steps": 3,
       "agent_category": "long_leadtime_no_po",
-      "agent_steps": 4,
-      "prompt_tokens": 2126,
-      "completion_tokens": 564
+      "agent_steps": 5,
+      "prompt_tokens": 2983,
+      "completion_tokens": 819
     },
     {
       "repeat": 2,
@@ -242,8 +242,8 @@
       "workflow_steps": 3,
       "agent_category": "long_leadtime_no_po",
       "agent_steps": 4,
-      "prompt_tokens": 2079,
-      "completion_tokens": 898
+      "prompt_tokens": 1641,
+      "completion_tokens": 452
     },
     {
       "repeat": 3,
@@ -254,8 +254,8 @@
       "workflow_steps": 3,
       "agent_category": "single_source_supply",
       "agent_steps": 4,
-      "prompt_tokens": 2168,
-      "completion_tokens": 782
+      "prompt_tokens": 1657,
+      "completion_tokens": 586
     },
     {
       "repeat": 3,
@@ -264,10 +264,10 @@
       "expected": "single_source_supply",
       "workflow_category": "single_source_supply",
       "workflow_steps": 3,
-      "agent_category": "single_source_supply",
+      "agent_category": "long_leadtime_no_po",
       "agent_steps": 5,
-      "prompt_tokens": 2978,
-      "completion_tokens": 1540
+      "prompt_tokens": 3115,
+      "completion_tokens": 859
     },
     {
       "repeat": 3,
@@ -276,10 +276,10 @@
       "expected": "single_source_supply",
       "workflow_category": "single_source_supply",
       "workflow_steps": 3,
-      "agent_category": "single_source_supply",
+      "agent_category": "long_leadtime_no_po",
       "agent_steps": 4,
-      "prompt_tokens": 2106,
-      "completion_tokens": 899
+      "prompt_tokens": 1727,
+      "completion_tokens": 586
     },
     {
       "repeat": 3,
@@ -288,10 +288,10 @@
       "expected": "single_source_supply",
       "workflow_category": "single_source_supply",
       "workflow_steps": 3,
-      "agent_category": "single_source_supply",
-      "agent_steps": 4,
-      "prompt_tokens": 2199,
-      "completion_tokens": 775
+      "agent_category": "long_leadtime_no_po",
+      "agent_steps": 5,
+      "prompt_tokens": 2563,
+      "completion_tokens": 982
     },
     {
       "repeat": 3,
@@ -300,10 +300,10 @@
       "expected": "shared_demand_competition",
       "workflow_category": "shared_demand_competition",
       "workflow_steps": 3,
-      "agent_category": "shared_demand_competition",
-      "agent_steps": 4,
-      "prompt_tokens": 2416,
-      "completion_tokens": 612
+      "agent_category": "long_leadtime_no_po",
+      "agent_steps": 5,
+      "prompt_tokens": 2982,
+      "completion_tokens": 1026
     },
     {
       "repeat": 3,
@@ -313,9 +313,9 @@
       "workflow_category": "shared_demand_competition",
       "workflow_steps": 3,
       "agent_category": "shared_demand_competition",
-      "agent_steps": 4,
-      "prompt_tokens": 2345,
-      "completion_tokens": 599
+      "agent_steps": 5,
+      "prompt_tokens": 2756,
+      "completion_tokens": 1043
     },
     {
       "repeat": 3,
@@ -324,10 +324,10 @@
       "expected": "shared_demand_competition",
       "workflow_category": "shared_demand_competition",
       "workflow_steps": 3,
-      "agent_category": "shared_demand_competition",
-      "agent_steps": 3,
-      "prompt_tokens": 1707,
-      "completion_tokens": 489
+      "agent_category": "long_leadtime_no_po",
+      "agent_steps": 4,
+      "prompt_tokens": 2966,
+      "completion_tokens": 1121
     },
     {
       "repeat": 3,
@@ -338,8 +338,8 @@
       "workflow_steps": 3,
       "agent_category": "long_leadtime_no_po",
       "agent_steps": 4,
-      "prompt_tokens": 2152,
-      "completion_tokens": 713
+      "prompt_tokens": 1577,
+      "completion_tokens": 423
     },
     {
       "repeat": 3,
@@ -350,8 +350,8 @@
       "workflow_steps": 3,
       "agent_category": "long_leadtime_no_po",
       "agent_steps": 4,
-      "prompt_tokens": 2111,
-      "completion_tokens": 845
+      "prompt_tokens": 1587,
+      "completion_tokens": 717
     },
     {
       "repeat": 3,
@@ -362,8 +362,8 @@
       "workflow_steps": 3,
       "agent_category": "long_leadtime_no_po",
       "agent_steps": 4,
-      "prompt_tokens": 2116,
-      "completion_tokens": 610
+      "prompt_tokens": 1617,
+      "completion_tokens": 689
     }
   ],
   "summary": {
@@ -373,14 +373,14 @@
       3,
       3
     ],
-    "agent_accuracy": 1.0,
-    "agent_avg_steps": 3.966666666666667,
+    "agent_accuracy": 0.4666666666666667,
+    "agent_avg_steps": 4.366666666666666,
     "agent_steps_interval": [
       3,
-      5
+      6
     ],
-    "prompt_tokens": 67320,
-    "completion_tokens": 23439,
-    "estimated_cost_usd": 0.01598772
+    "prompt_tokens": 65234,
+    "completion_tokens": 23686,
+    "estimated_cost_usd": 0.01576484
   }
 }
