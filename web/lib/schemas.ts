@@ -258,6 +258,47 @@ export const WhatIfResultSchema = z.object({
 });
 export type WhatIfResult = z.infer<typeof WhatIfResultSchema>;
 
+export const DiagnosisCategorySchema = z.enum([
+  "single_source_supply",
+  "shared_demand_competition",
+  "long_leadtime_no_po",
+  "forecast_miss",
+  "unknown",
+]);
+
+export const DiagnosisStepEventSchema = z.object({
+  type: z.literal("step"),
+  index: z.number().int(),
+  action: z.string(),
+  args: z.record(z.string(), z.unknown()),
+  observation: z.string(),
+});
+export const DiagnosisRetryEventSchema = z.object({
+  type: z.literal("retry"),
+  index: z.number().int(),
+});
+export const DiagnosisResultEventSchema = z.object({
+  type: z.literal("result"),
+  category: DiagnosisCategorySchema,
+  root_cause: z.string(),
+  steps: z.number().int(),
+  degraded: z.boolean(),
+  guardrail: z.string(),
+});
+export const DiagnosisErrorEventSchema = z.object({
+  type: z.literal("error"),
+  message: z.string(),
+});
+export const DiagnosisEventSchema = z.discriminatedUnion("type", [
+  DiagnosisStepEventSchema,
+  DiagnosisRetryEventSchema,
+  DiagnosisResultEventSchema,
+  DiagnosisErrorEventSchema,
+]);
+export type DiagnosisEvent = z.infer<typeof DiagnosisEventSchema>;
+export type DiagnosisStepEvent = z.infer<typeof DiagnosisStepEventSchema>;
+export type DiagnosisResultEvent = z.infer<typeof DiagnosisResultEventSchema>;
+
 export const ValidationErrorSchema = z.object({
   loc: z.array(z.union([z.string(), z.number().int()])),
   msg: z.string(),

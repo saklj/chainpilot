@@ -4,6 +4,7 @@ import { Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
+import { DiagnosisPanel } from "@/components/diagnose/diagnosis-panel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -306,6 +307,8 @@ function MaterialDetail({ detail }: { detail: MaterialRiskDetail }) {
         <p className="text-sm leading-6 text-foreground">{detail.explanation}</p>
         <p className="font-mono text-xs text-muted-foreground">{detail.risk_reasons || "NO_RULE"}</p>
       </section>
+
+      <DiagnosisPanel key={detail.material_pn} materialPn={detail.material_pn} />
 
       <DetailTable
         title="贡献 SKU"

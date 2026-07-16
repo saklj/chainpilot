@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 from dataclasses import dataclass
+from collections.abc import Generator
 from typing import Any, Literal, Protocol
 
 import duckdb
@@ -212,12 +213,24 @@ def _unknown(trace: list[DiagnosisTrace], usage: TokenUsage, steps: int) -> Diag
     return DiagnosisResult("unknown", f"未定位根因，已排除或检查：{excluded}。", steps, trace, usage, True, "not_run")
 
 
-def diagnose_material(
+def _result_event(result: DiagnosisResult) -> dict[str, Any]:
+    return {
+        "type": "result",
+        "category": result.category,
+        "root_cause": result.root_cause,
+        "steps": result.steps,
+        "degraded": result.degraded,
+        "guardrail": result.guardrail_verdict,
+    }
+
+
+def diagnose_material_events(
     llm: DiagnosisLLM,
     connection: duckdb.DuckDBPyConnection,
     material_pn: str,
     max_steps: int = 8,
-) -> DiagnosisResult:
+) -> Generator[dict[str, Any], None, DiagnosisResult]:
+    """Yield bounded diagnosis progress while returning the unchanged final result."""
     get_risk_detail(connection, material_pn)
     messages = [{"role": "system", "content": _system_prompt()}, {"role": "user", "content": f"诊断 {material_pn} 为什么缺料。"}]
     trace: list[DiagnosisTrace] = []
@@ -236,8 +249,12 @@ def diagnose_material(
                 break
             except ValueError as error:
                 messages.append({"role": "user", "content": f"JSON 解析错误：{error}。只输出一个合法 JSON 对象。"})
+                if attempt == 0:
+                    yield {"type": "retry", "index": step}
         if parsed is None:
-            return _unknown(trace, usage, step)
+            result = _unknown(trace, usage, step)
+            yield _result_event(result)
+            return result
         action = str(parsed.get("action", ""))
         if action == "final":
             category = str(parsed.get("category", "unknown"))
@@ -249,7 +266,9 @@ def diagnose_material(
             degraded = verdict.verdict == "fail" or not root_cause
             if degraded:
                 root_cause = f"{material_pn} 诊断已降级：" + (observations[-1].text if observations else "没有可核验的工具证据。")
-            return DiagnosisResult(category, root_cause, step, trace, usage, degraded, verdict.verdict)
+            result = DiagnosisResult(category, root_cause, step, trace, usage, degraded, verdict.verdict)
+            yield _result_event(result)
+            return result
         args = parsed.get("args") if isinstance(parsed.get("args"), dict) else {}
         try:
             observation = _dispatch(connection, action, args)
@@ -257,8 +276,33 @@ def diagnose_material(
             observation = _observation(["error"], [(str(error),)])
         trace.append(DiagnosisTrace(action, args, observation.text))
         observations.append(observation)
+        summary = observation.text if len(observation.text) <= 400 else observation.text[:397] + "..."
+        yield {
+            "type": "step",
+            "index": step,
+            "action": action,
+            "args": args,
+            "observation": summary,
+        }
         messages.append({"role": "user", "content": f"observation: {observation.text}"})
-    return _unknown(trace, usage, max_steps)
+    result = _unknown(trace, usage, max_steps)
+    yield _result_event(result)
+    return result
+
+
+def diagnose_material(
+    llm: DiagnosisLLM,
+    connection: duckdb.DuckDBPyConnection,
+    material_pn: str,
+    max_steps: int = 8,
+) -> DiagnosisResult:
+    """Consume progress events and preserve the original synchronous result contract."""
+    events = diagnose_material_events(llm, connection, material_pn, max_steps)
+    while True:
+        try:
+            next(events)
+        except StopIteration as stopped:
+            return stopped.value
 
 
 def main() -> int:

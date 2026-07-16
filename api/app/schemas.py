@@ -201,3 +201,7 @@ class WhatIfResponse(BaseModel):
     summary: WhatIfSummary
     worsened_materials: list[WhatIfMaterial]
     affected_skus: list[WhatIfSku]
+
+
+class DiagnosisRequest(BaseModel):
+    material_pn: str = Field(min_length=1, max_length=50)
