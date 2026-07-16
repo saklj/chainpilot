@@ -1,0 +1,143 @@
+{
+  "generated_at": "2026-07-16T10:30:56.384543+00:00",
+  "parameters": {
+    "with_llm": false,
+    "repeat": 1
+  },
+  "rows": [
+    {
+      "repeat": 1,
+      "scenario_id": "GT-01",
+      "material_pn": "PN-00211",
+      "expected": "single_source_supply",
+      "workflow_category": "single_source_supply",
+      "workflow_steps": 3,
+      "agent_category": null,
+      "agent_steps": null,
+      "prompt_tokens": 0,
+      "completion_tokens": 0
+    },
+    {
+      "repeat": 1,
+      "scenario_id": "GT-02",
+      "material_pn": "PN-00212",
+      "expected": "single_source_supply",
+      "workflow_category": "single_source_supply",
+      "workflow_steps": 3,
+      "agent_category": null,
+      "agent_steps": null,
+      "prompt_tokens": 0,
+      "completion_tokens": 0
+    },
+    {
+      "repeat": 1,
+      "scenario_id": "GT-03",
+      "material_pn": "PN-00213",
+      "expected": "single_source_supply",
+      "workflow_category": "single_source_supply",
+      "workflow_steps": 3,
+      "agent_category": null,
+      "agent_steps": null,
+      "prompt_tokens": 0,
+      "completion_tokens": 0
+    },
+    {
+      "repeat": 1,
+      "scenario_id": "GT-04",
+      "material_pn": "PN-00214",
+      "expected": "single_source_supply",
+      "workflow_category": "single_source_supply",
+      "workflow_steps": 3,
+      "agent_category": null,
+      "agent_steps": null,
+      "prompt_tokens": 0,
+      "completion_tokens": 0
+    },
+    {
+      "repeat": 1,
+      "scenario_id": "GT-05",
+      "material_pn": "PN-00001",
+      "expected": "shared_demand_competition",
+      "workflow_category": "shared_demand_competition",
+      "workflow_steps": 3,
+      "agent_category": null,
+      "agent_steps": null,
+      "prompt_tokens": 0,
+      "completion_tokens": 0
+    },
+    {
+      "repeat": 1,
+      "scenario_id": "GT-06",
+      "material_pn": "PN-00002",
+      "expected": "shared_demand_competition",
+      "workflow_category": "shared_demand_competition",
+      "workflow_steps": 3,
+      "agent_category": null,
+      "agent_steps": null,
+      "prompt_tokens": 0,
+      "completion_tokens": 0
+    },
+    {
+      "repeat": 1,
+      "scenario_id": "GT-07",
+      "material_pn": "PN-00003",
+      "expected": "shared_demand_competition",
+      "workflow_category": "shared_demand_competition",
+      "workflow_steps": 3,
+      "agent_category": null,
+      "agent_steps": null,
+      "prompt_tokens": 0,
+      "completion_tokens": 0
+    },
+    {
+      "repeat": 1,
+      "scenario_id": "GT-08",
+      "material_pn": "PN-00271",
+      "expected": "long_leadtime_no_po",
+      "workflow_category": "long_leadtime_no_po",
+      "workflow_steps": 3,
+      "agent_category": null,
+      "agent_steps": null,
+      "prompt_tokens": 0,
+      "completion_tokens": 0
+    },
+    {
+      "repeat": 1,
+      "scenario_id": "GT-09",
+      "material_pn": "PN-00272",
+      "expected": "long_leadtime_no_po",
+      "workflow_category": "long_leadtime_no_po",
+      "workflow_steps": 3,
+      "agent_category": null,
+      "agent_steps": null,
+      "prompt_tokens": 0,
+      "completion_tokens": 0
+    },
+    {
+      "repeat": 1,
+      "scenario_id": "GT-10",
+      "material_pn": "PN-00273",
+      "expected": "long_leadtime_no_po",
+      "workflow_category": "long_leadtime_no_po",
+      "workflow_steps": 3,
+      "agent_category": null,
+      "agent_steps": null,
+      "prompt_tokens": 0,
+      "completion_tokens": 0
+    }
+  ],
+  "summary": {
+    "workflow_accuracy": 1.0,
+    "workflow_avg_steps": 3.0,
+    "workflow_steps_interval": [
+      3,
+      3
+    ],
+    "agent_accuracy": null,
+    "agent_avg_steps": null,
+    "agent_steps_interval": null,
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "estimated_cost_usd": 0.0
+  }
+}
