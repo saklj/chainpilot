@@ -1,0 +1,1979 @@
+{
+  "generated_at": "2026-07-16T12:01:09.702274+00:00",
+  "parameters": {
+    "k": 4,
+    "min_similarity": null,
+    "with_llm": true
+  },
+  "retrieval": [
+    {
+      "id": "T01",
+      "category": "template",
+      "retrieved_ids": [
+        "O10",
+        "O05",
+        "O09",
+        "O16"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": false,
+      "similarities": [
+        0.8105208103502797,
+        0.7966579647991895,
+        0.7806465286621928,
+        0.6698054173321584
+      ]
+    },
+    {
+      "id": "T02",
+      "category": "template",
+      "retrieved_ids": [
+        "O20",
+        "O08",
+        "T05",
+        "T01"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": true,
+      "similarities": [
+        0.6920950184502166,
+        0.6635064271878827,
+        0.6307815010580132,
+        0.6139691108520327
+      ]
+    },
+    {
+      "id": "T03",
+      "category": "template",
+      "retrieved_ids": [
+        "T10",
+        "O11",
+        "T07",
+        "T05"
+      ],
+      "top1_same_category": true,
+      "topk_same_category": true,
+      "similarities": [
+        0.742572760527151,
+        0.6783411182073094,
+        0.6741704470412911,
+        0.6652591737553336
+      ]
+    },
+    {
+      "id": "T04",
+      "category": "template",
+      "retrieved_ids": [
+        "O07",
+        "O08",
+        "O15",
+        "O04"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": false,
+      "similarities": [
+        0.6619690677044069,
+        0.641834323487029,
+        0.6393633381009973,
+        0.6360506874234747
+      ]
+    },
+    {
+      "id": "T05",
+      "category": "template",
+      "retrieved_ids": [
+        "O08",
+        "O15",
+        "O01",
+        "T20"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": true,
+      "similarities": [
+        0.740067842653748,
+        0.6987349544081444,
+        0.6804910538729979,
+        0.6794100115012399
+      ]
+    },
+    {
+      "id": "T06",
+      "category": "template",
+      "retrieved_ids": [
+        "T07",
+        "O15",
+        "T13",
+        "T05"
+      ],
+      "top1_same_category": true,
+      "topk_same_category": true,
+      "similarities": [
+        0.7515019614975467,
+        0.7025090752495133,
+        0.6712610888232601,
+        0.6450311022995373
+      ]
+    },
+    {
+      "id": "T07",
+      "category": "template",
+      "retrieved_ids": [
+        "T20",
+        "T10",
+        "T06",
+        "O16"
+      ],
+      "top1_same_category": true,
+      "topk_same_category": true,
+      "similarities": [
+        0.7767160767938179,
+        0.7694681258754187,
+        0.7515018267119747,
+        0.7159091283979824
+      ]
+    },
+    {
+      "id": "T08",
+      "category": "template",
+      "retrieved_ids": [
+        "O03",
+        "O12",
+        "T13",
+        "T07"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": true,
+      "similarities": [
+        0.8142315450743419,
+        0.7913976107530897,
+        0.7326467472767446,
+        0.6376975364466237
+      ]
+    },
+    {
+      "id": "T09",
+      "category": "template",
+      "retrieved_ids": [
+        "O02",
+        "T04",
+        "O10",
+        "O07"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": true,
+      "similarities": [
+        0.682275820281481,
+        0.6351600420407112,
+        0.5852565212609099,
+        0.5811244480984332
+      ]
+    },
+    {
+      "id": "T10",
+      "category": "template",
+      "retrieved_ids": [
+        "O11",
+        "T07",
+        "T03",
+        "T12"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": true,
+      "similarities": [
+        0.8129561964119835,
+        0.7694681933863959,
+        0.7425727527599063,
+        0.7283008065829519
+      ]
+    },
+    {
+      "id": "T11",
+      "category": "template",
+      "retrieved_ids": [
+        "T12",
+        "T10",
+        "O11",
+        "O13"
+      ],
+      "top1_same_category": true,
+      "topk_same_category": true,
+      "similarities": [
+        0.7184390302699092,
+        0.689957602295846,
+        0.6502343244779218,
+        0.6428621781395952
+      ]
+    },
+    {
+      "id": "T12",
+      "category": "template",
+      "retrieved_ids": [
+        "T10",
+        "T11",
+        "O11",
+        "T07"
+      ],
+      "top1_same_category": true,
+      "topk_same_category": true,
+      "similarities": [
+        0.728300731749319,
+        0.7184392071872346,
+        0.6802895044581572,
+        0.5856803471157931
+      ]
+    },
+    {
+      "id": "T13",
+      "category": "template",
+      "retrieved_ids": [
+        "T08",
+        "O15",
+        "T07",
+        "T06"
+      ],
+      "top1_same_category": true,
+      "topk_same_category": true,
+      "similarities": [
+        0.7326467483567087,
+        0.706327829593003,
+        0.6796791584387565,
+        0.6712610900067767
+      ]
+    },
+    {
+      "id": "T14",
+      "category": "template",
+      "retrieved_ids": [
+        "O14",
+        "T15",
+        "T02",
+        "T18"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": true,
+      "similarities": [
+        0.5971675036648315,
+        0.5858822689644381,
+        0.5640477477295129,
+        0.5574043250408347
+      ]
+    },
+    {
+      "id": "T15",
+      "category": "template",
+      "retrieved_ids": [
+        "O14",
+        "T18",
+        "T14",
+        "O13"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": true,
+      "similarities": [
+        0.6345198250379626,
+        0.5873695402657713,
+        0.585882206579465,
+        0.5639265653012561
+      ]
+    },
+    {
+      "id": "T16",
+      "category": "template",
+      "retrieved_ids": [
+        "T18",
+        "O14",
+        "T17",
+        "O18"
+      ],
+      "top1_same_category": true,
+      "topk_same_category": true,
+      "similarities": [
+        0.7702827381947325,
+        0.7279706361800825,
+        0.7155447006533482,
+        0.7128939145852801
+      ]
+    },
+    {
+      "id": "T17",
+      "category": "template",
+      "retrieved_ids": [
+        "O17",
+        "T16",
+        "T18",
+        "O18"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": true,
+      "similarities": [
+        0.7856469882147172,
+        0.7155448187163148,
+        0.6232806244556718,
+        0.6000592525496375
+      ]
+    },
+    {
+      "id": "T18",
+      "category": "template",
+      "retrieved_ids": [
+        "O14",
+        "T16",
+        "T20",
+        "O13"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": true,
+      "similarities": [
+        0.8335185059108883,
+        0.7702827381947325,
+        0.7000286060797849,
+        0.6803166371221886
+      ]
+    },
+    {
+      "id": "T19",
+      "category": "template",
+      "retrieved_ids": [
+        "O19",
+        "O13",
+        "O18",
+        "O14"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": false,
+      "similarities": [
+        0.841365898249688,
+        0.575120477530165,
+        0.5211594949357371,
+        0.5083757254714815
+      ]
+    },
+    {
+      "id": "T20",
+      "category": "template",
+      "retrieved_ids": [
+        "T07",
+        "T10",
+        "T18",
+        "T05"
+      ],
+      "top1_same_category": true,
+      "topk_same_category": true,
+      "similarities": [
+        0.7767160925119494,
+        0.7105061493381535,
+        0.700028637883588,
+        0.6794100343917422
+      ]
+    },
+    {
+      "id": "O01",
+      "category": "open",
+      "retrieved_ids": [
+        "T05",
+        "O07",
+        "O04",
+        "T04"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": true,
+      "similarities": [
+        0.6804910939550087,
+        0.6110497796448937,
+        0.5976681675347125,
+        0.5854628783019119
+      ]
+    },
+    {
+      "id": "O02",
+      "category": "open",
+      "retrieved_ids": [
+        "T09",
+        "O12",
+        "T04",
+        "O15"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": true,
+      "similarities": [
+        0.6822758266139166,
+        0.6569375723466657,
+        0.6176985670417797,
+        0.5952975962329979
+      ]
+    },
+    {
+      "id": "O03",
+      "category": "open",
+      "retrieved_ids": [
+        "T08",
+        "O12",
+        "O16",
+        "O15"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": true,
+      "similarities": [
+        0.8142315300777027,
+        0.7829196332154937,
+        0.6657656438823046,
+        0.6301595344817073
+      ]
+    },
+    {
+      "id": "O04",
+      "category": "open",
+      "retrieved_ids": [
+        "T04",
+        "O08",
+        "O01",
+        "T02"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": true,
+      "similarities": [
+        0.6360506614387063,
+        0.6183234215448626,
+        0.5976681443291203,
+        0.5903928287022077
+      ]
+    },
+    {
+      "id": "O05",
+      "category": "open",
+      "retrieved_ids": [
+        "T01",
+        "O10",
+        "O09",
+        "O16"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": true,
+      "similarities": [
+        0.7966580055940856,
+        0.7584882649603584,
+        0.6801139946626218,
+        0.6141230790320618
+      ]
+    },
+    {
+      "id": "O06",
+      "category": "open",
+      "retrieved_ids": [
+        "T16",
+        "O18",
+        "T18",
+        "O13"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": true,
+      "similarities": [
+        0.6791685778613166,
+        0.6759967186985968,
+        0.6371336480319959,
+        0.6329325721726043
+      ]
+    },
+    {
+      "id": "O07",
+      "category": "open",
+      "retrieved_ids": [
+        "O08",
+        "T04",
+        "O15",
+        "T20"
+      ],
+      "top1_same_category": true,
+      "topk_same_category": true,
+      "similarities": [
+        0.6825038536517265,
+        0.6619690677044069,
+        0.6187616042008098,
+        0.6121667952083465
+      ]
+    },
+    {
+      "id": "O08",
+      "category": "open",
+      "retrieved_ids": [
+        "T05",
+        "O15",
+        "O07",
+        "T02"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": true,
+      "similarities": [
+        0.7400679285597308,
+        0.6934423928525494,
+        0.682503898477776,
+        0.6635064440638434
+      ]
+    },
+    {
+      "id": "O09",
+      "category": "open",
+      "retrieved_ids": [
+        "T01",
+        "O10",
+        "O05",
+        "O16"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": true,
+      "similarities": [
+        0.7806465513442333,
+        0.7773691044847458,
+        0.6801139893724241,
+        0.5585560036533869
+      ]
+    },
+    {
+      "id": "O10",
+      "category": "open",
+      "retrieved_ids": [
+        "T01",
+        "O09",
+        "O05",
+        "O16"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": true,
+      "similarities": [
+        0.8105209187437027,
+        0.7773692716854502,
+        0.7584882755191841,
+        0.6476790075589242
+      ]
+    },
+    {
+      "id": "O11",
+      "category": "open",
+      "retrieved_ids": [
+        "T10",
+        "T12",
+        "T03",
+        "T11"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": false,
+      "similarities": [
+        0.8129561547600472,
+        0.6802894431055747,
+        0.6783411182073094,
+        0.6502343138418886
+      ]
+    },
+    {
+      "id": "O12",
+      "category": "open",
+      "retrieved_ids": [
+        "T08",
+        "O03",
+        "T07",
+        "O02"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": true,
+      "similarities": [
+        0.791397587273695,
+        0.7829196708399214,
+        0.6716758047687083,
+        0.6569375886341609
+      ]
+    },
+    {
+      "id": "O13",
+      "category": "open",
+      "retrieved_ids": [
+        "O18",
+        "T18",
+        "T20",
+        "T11"
+      ],
+      "top1_same_category": true,
+      "topk_same_category": true,
+      "similarities": [
+        0.6870616869413882,
+        0.6803166345409893,
+        0.6463726582449937,
+        0.642862096313376
+      ]
+    },
+    {
+      "id": "O14",
+      "category": "open",
+      "retrieved_ids": [
+        "T18",
+        "T16",
+        "A04",
+        "T15"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": false,
+      "similarities": [
+        0.8335184881182787,
+        0.7279706037936794,
+        0.654815376664274,
+        0.6345198180694182
+      ]
+    },
+    {
+      "id": "O15",
+      "category": "open",
+      "retrieved_ids": [
+        "T13",
+        "T06",
+        "T05",
+        "O08"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": true,
+      "similarities": [
+        0.7063278990520748,
+        0.7025091082213221,
+        0.6987348984654987,
+        0.6934423362945045
+      ]
+    },
+    {
+      "id": "O16",
+      "category": "open",
+      "retrieved_ids": [
+        "T07",
+        "T01",
+        "O03",
+        "O10"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": true,
+      "similarities": [
+        0.7159091758539945,
+        0.6698053885948032,
+        0.6657657097671744,
+        0.6476790382814008
+      ]
+    },
+    {
+      "id": "O17",
+      "category": "open",
+      "retrieved_ids": [
+        "T17",
+        "T16",
+        "T07",
+        "T18"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": false,
+      "similarities": [
+        0.7856468291301866,
+        0.6393425254392973,
+        0.598452615800015,
+        0.5393880583195556
+      ]
+    },
+    {
+      "id": "O18",
+      "category": "open",
+      "retrieved_ids": [
+        "T16",
+        "O13",
+        "O06",
+        "T18"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": true,
+      "similarities": [
+        0.7128938817120077,
+        0.6870616983545496,
+        0.6759967113335151,
+        0.6701061520264594
+      ]
+    },
+    {
+      "id": "O19",
+      "category": "open",
+      "retrieved_ids": [
+        "T19",
+        "O13",
+        "O18",
+        "T18"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": true,
+      "similarities": [
+        0.8413659208950132,
+        0.5421727251973284,
+        0.535417338173352,
+        0.5188565330477786
+      ]
+    },
+    {
+      "id": "O20",
+      "category": "open",
+      "retrieved_ids": [
+        "T02",
+        "T01",
+        "O16",
+        "T04"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": true,
+      "similarities": [
+        0.692095038975047,
+        0.6683870059064064,
+        0.6375182701474142,
+        0.6079823006925328
+      ]
+    },
+    {
+      "id": "A01",
+      "category": "adversarial",
+      "retrieved_ids": [
+        "A03",
+        "A04",
+        "A08",
+        "O20"
+      ],
+      "top1_same_category": true,
+      "topk_same_category": true,
+      "similarities": [
+        0.6376897322453651,
+        0.6089652076074481,
+        0.5595061102687615,
+        0.5301924346128463
+      ]
+    },
+    {
+      "id": "A02",
+      "category": "adversarial",
+      "retrieved_ids": [
+        "A08",
+        "A04",
+        "A01",
+        "O16"
+      ],
+      "top1_same_category": true,
+      "topk_same_category": true,
+      "similarities": [
+        0.5968370802112075,
+        0.4873465131814242,
+        0.48343539659230844,
+        0.4747270008330735
+      ]
+    },
+    {
+      "id": "A03",
+      "category": "adversarial",
+      "retrieved_ids": [
+        "A01",
+        "O13",
+        "A04",
+        "T15"
+      ],
+      "top1_same_category": true,
+      "topk_same_category": true,
+      "similarities": [
+        0.6376898006514536,
+        0.5758985060830165,
+        0.5522684785112401,
+        0.5446447674881495
+      ]
+    },
+    {
+      "id": "A04",
+      "category": "adversarial",
+      "retrieved_ids": [
+        "O14",
+        "A01",
+        "T18",
+        "A03"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": true,
+      "similarities": [
+        0.6548154361148757,
+        0.6089650902688902,
+        0.5886247134682768,
+        0.5522683505531736
+      ]
+    },
+    {
+      "id": "A05",
+      "category": "adversarial",
+      "retrieved_ids": [
+        "A07",
+        "A09",
+        "T04",
+        "A08"
+      ],
+      "top1_same_category": true,
+      "topk_same_category": true,
+      "similarities": [
+        0.5575175143906328,
+        0.5476921175347909,
+        0.5406917212737917,
+        0.5188253258302876
+      ]
+    },
+    {
+      "id": "A06",
+      "category": "adversarial",
+      "retrieved_ids": [
+        "A09",
+        "O04",
+        "A04",
+        "A05"
+      ],
+      "top1_same_category": true,
+      "topk_same_category": true,
+      "similarities": [
+        0.5158064848273431,
+        0.5103669579475282,
+        0.46856897665573394,
+        0.46315101774849216
+      ]
+    },
+    {
+      "id": "A07",
+      "category": "adversarial",
+      "retrieved_ids": [
+        "A05",
+        "A09",
+        "T14",
+        "A08"
+      ],
+      "top1_same_category": true,
+      "topk_same_category": true,
+      "similarities": [
+        0.5575176253280895,
+        0.5530168771957077,
+        0.5445970164670063,
+        0.5194938698375919
+      ]
+    },
+    {
+      "id": "A08",
+      "category": "adversarial",
+      "retrieved_ids": [
+        "A02",
+        "A01",
+        "A07",
+        "A05"
+      ],
+      "top1_same_category": true,
+      "topk_same_category": true,
+      "similarities": [
+        0.5968370802112075,
+        0.5595060710399089,
+        0.5194938090158644,
+        0.5188253527545788
+      ]
+    },
+    {
+      "id": "A09",
+      "category": "adversarial",
+      "retrieved_ids": [
+        "A07",
+        "A05",
+        "A06",
+        "O04"
+      ],
+      "top1_same_category": true,
+      "topk_same_category": true,
+      "similarities": [
+        0.5530168981632329,
+        0.5476921642470173,
+        0.5158065256573267,
+        0.4658707054817976
+      ]
+    },
+    {
+      "id": "A10",
+      "category": "adversarial",
+      "retrieved_ids": [
+        "O07",
+        "O08",
+        "A01",
+        "O01"
+      ],
+      "top1_same_category": false,
+      "topk_same_category": true,
+      "similarities": [
+        0.4991550430221154,
+        0.4618088029855674,
+        0.45816197449595936,
+        0.43963490347109396
+      ]
+    }
+  ],
+  "comparisons": [
+    {
+      "id": "T01",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT r.material_pn, m.material_name, r.doi_days, r.gap_qty, r.gap_date\nFROM material_risk r\nJOIN materials m USING (material_pn)\nWHERE r.eval_date = (SELECT max(eval_date) FROM material_risk)\n  AND r.risk_level = 'RED'\nORDER BY r.gap_qty DESC",
+        "usage": {
+          "prompt_tokens": 2650,
+          "completion_tokens": 165
+        }
+      },
+      "rag": {
+        "passed": true,
+        "status": "ok",
+        "sql": "SELECT material_pn FROM material_risk WHERE eval_date = (SELECT max(eval_date) FROM material_risk) AND risk_level = 'RED' ORDER BY material_pn",
+        "usage": {
+          "prompt_tokens": 2035,
+          "completion_tokens": 85
+        }
+      }
+    },
+    {
+      "id": "T02",
+      "fixed": {
+        "passed": true,
+        "status": "ok",
+        "sql": "SELECT material_pn, risk_level, doi_days, gap_qty, gap_date, risk_reasons\nFROM material_risk\nWHERE material_pn = 'PN-00003'\n  AND eval_date = (SELECT max(eval_date) FROM material_risk)",
+        "usage": {
+          "prompt_tokens": 2663,
+          "completion_tokens": 139
+        }
+      },
+      "rag": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT risk_level, doi_days, gap_qty, gap_date, risk_reasons FROM material_risk WHERE material_pn = 'PN-00003' AND eval_date = (SELECT max(eval_date) FROM material_risk)",
+        "usage": {
+          "prompt_tokens": 2083,
+          "completion_tokens": 138
+        }
+      }
+    },
+    {
+      "id": "T03",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT r.material_pn, m.material_name, r.doi_days\nFROM material_risk r\nJOIN materials m USING (material_pn)\nWHERE r.eval_date = (SELECT max(eval_date) FROM material_risk)\nORDER BY r.doi_days, r.material_pn\nLIMIT 5",
+        "usage": {
+          "prompt_tokens": 2656,
+          "completion_tokens": 195
+        }
+      },
+      "rag": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT material_pn, doi_days FROM material_risk WHERE eval_date = (SELECT max(eval_date) FROM material_risk) ORDER BY doi_days ASC, material_pn LIMIT 5",
+        "usage": {
+          "prompt_tokens": 2076,
+          "completion_tokens": 158
+        }
+      }
+    },
+    {
+      "id": "T04",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT material_pn, gap_qty, gap_date\nFROM material_risk\nWHERE eval_date = (SELECT max(eval_date) FROM material_risk)\n  AND gap_qty > 0\nORDER BY gap_qty DESC, material_pn",
+        "usage": {
+          "prompt_tokens": 2653,
+          "completion_tokens": 199
+        }
+      },
+      "rag": {
+        "passed": true,
+        "status": "ok",
+        "sql": "SELECT material_pn FROM material_risk WHERE eval_date = (SELECT max(eval_date) FROM material_risk) AND gap_qty > 0 ORDER BY material_pn",
+        "usage": {
+          "prompt_tokens": 1995,
+          "completion_tokens": 202
+        }
+      }
+    },
+    {
+      "id": "T05",
+      "fixed": {
+        "passed": true,
+        "status": "ok",
+        "sql": "WITH latest AS (\n  SELECT material_pn, gap_date, gap_qty\n  FROM material_risk\n  WHERE eval_date = (SELECT max(eval_date) FROM material_risk)\n    AND gap_date IS NOT NULL\n),\nmin_gap AS (\n  SELECT min(gap_date) AS earliest_date FROM latest\n)\nSELECT l.material_pn, l.gap_date, l.gap_qty\nFROM latest l, min_gap m\nWHERE l.gap_date = m.earliest_date\nORDER BY l.material_pn",
+        "usage": {
+          "prompt_tokens": 2655,
+          "completion_tokens": 301
+        }
+      },
+      "rag": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT material_pn, gap_qty FROM material_risk WHERE eval_date = (SELECT max(eval_date) FROM material_risk) AND gap_date IS NOT NULL AND gap_date = (SELECT min(gap_date) FROM material_risk WHERE eval_date = (SELECT max(eval_date) FROM material_risk) AND gap_date IS NOT NULL) ORDER BY material_pn",
+        "usage": {
+          "prompt_tokens": 2043,
+          "completion_tokens": 223
+        }
+      }
+    },
+    {
+      "id": "T06",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT ss.material_pn, m.material_name, s.supplier_name, ss.split_pct\nFROM supply_split ss\nJOIN materials m USING (material_pn)\nJOIN suppliers s USING (supplier_id)\nWHERE ss.material_pn IN (\n  SELECT material_pn\n  FROM supply_split\n  GROUP BY material_pn\n  HAVING count(*) = 1\n)\nORDER BY ss.material_pn",
+        "usage": {
+          "prompt_tokens": 2650,
+          "completion_tokens": 516
+        }
+      },
+      "rag": {
+        "passed": true,
+        "status": "ok",
+        "sql": "SELECT material_pn FROM supply_split GROUP BY material_pn HAVING COUNT(DISTINCT supplier_id) = 1 ORDER BY material_pn",
+        "usage": {
+          "prompt_tokens": 2061,
+          "completion_tokens": 181
+        }
+      }
+    },
+    {
+      "id": "T07",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT ss.material_pn, m.material_name, max(ss.split_pct) AS supplier_concentration\nFROM supply_split ss JOIN materials m USING (material_pn)\nGROUP BY ss.material_pn, m.material_name\nORDER BY supplier_concentration DESC, ss.material_pn\nLIMIT 10",
+        "usage": {
+          "prompt_tokens": 2656,
+          "completion_tokens": 331
+        }
+      },
+      "rag": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT\n  r.material_pn,\n  m.material_name,\n  r.supplier_concentration\nFROM material_risk r\nJOIN materials m USING (material_pn)\nWHERE r.eval_date = (SELECT max(eval_date) FROM material_risk)\nORDER BY r.supplier_concentration DESC\nLIMIT 10",
+        "usage": {
+          "prompt_tokens": 2000,
+          "completion_tokens": 318
+        }
+      }
+    },
+    {
+      "id": "T08",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT supplier_id, supplier_name, red_orange_material_count, weighted_gap_qty\nFROM v_risk_by_supplier\nWHERE eval_date = (SELECT max(eval_date) FROM material_risk)\nORDER BY weighted_gap_qty DESC\nLIMIT 5",
+        "usage": {
+          "prompt_tokens": 2659,
+          "completion_tokens": 175
+        }
+      },
+      "rag": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT supplier_name, weighted_gap_qty\nFROM v_risk_by_supplier\nWHERE eval_date = (SELECT max(eval_date) FROM material_risk)\nORDER BY weighted_gap_qty DESC\nLIMIT 5",
+        "usage": {
+          "prompt_tokens": 2037,
+          "completion_tokens": 200
+        }
+      }
+    },
+    {
+      "id": "T09",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT 'commodity' AS dimension, commodity AS group_name, red_count, total_gap_qty\nFROM v_risk_by_commodity\nWHERE eval_date = (SELECT max(eval_date) FROM material_risk)\nUNION ALL\nSELECT 'item_group' AS dimension, item_group, red_count, total_gap_qty\nFROM v_risk_by_item_group\nWHERE eval_date = (SELECT max(eval_date) FROM material_risk)\nORDER BY dimension, red_count DESC, group_name",
+        "usage": {
+          "prompt_tokens": 2659,
+          "completion_tokens": 448
+        }
+      },
+      "rag": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT 'commodity' AS dimension, commodity AS group_name, red_count, total_gap_qty\nFROM v_risk_by_commodity\nWHERE eval_date = (SELECT max(eval_date) FROM material_risk)\nUNION ALL\nSELECT 'item_group' AS dimension, item_group AS group_name, red_count, total_gap_qty\nFROM v_risk_by_item_group\nWHERE eval_date = (SELECT max(eval_date) FROM material_risk)\nORDER BY dimension, group_name",
+        "usage": {
+          "prompt_tokens": 2009,
+          "completion_tokens": 383
+        }
+      }
+    },
+    {
+      "id": "T10",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT b.material_pn, m.material_name, count(DISTINCT b.sku_id) AS sku_count\nFROM bom b JOIN materials m USING (material_pn)\nGROUP BY b.material_pn, m.material_name\nHAVING count(DISTINCT b.sku_id) > 1\nORDER BY sku_count DESC, b.material_pn\nLIMIT 10",
+        "usage": {
+          "prompt_tokens": 2659,
+          "completion_tokens": 485
+        }
+      },
+      "rag": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT material_pn, count(DISTINCT sku_id) AS sku_count\nFROM bom\nGROUP BY material_pn\nORDER BY sku_count DESC, material_pn\nLIMIT 10",
+        "usage": {
+          "prompt_tokens": 2019,
+          "completion_tokens": 241
+        }
+      }
+    },
+    {
+      "id": "T11",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT b.material_pn, m.material_name, b.qty_per_unit\nFROM bom b\nJOIN materials m USING (material_pn)\nWHERE b.sku_id = 'FOODS_3_107'\nORDER BY b.material_pn",
+        "usage": {
+          "prompt_tokens": 2659,
+          "completion_tokens": 115
+        }
+      },
+      "rag": {
+        "passed": true,
+        "status": "ok",
+        "sql": "SELECT material_pn FROM bom WHERE sku_id = 'FOODS_3_107' ORDER BY material_pn",
+        "usage": {
+          "prompt_tokens": 2043,
+          "completion_tokens": 251
+        }
+      }
+    },
+    {
+      "id": "T12",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT b.sku_id, p.product_name, b.qty_per_unit\nFROM bom b JOIN products p USING (sku_id)\nWHERE b.material_pn = 'PN-00022'\nORDER BY b.sku_id",
+        "usage": {
+          "prompt_tokens": 2657,
+          "completion_tokens": 113
+        }
+      },
+      "rag": {
+        "passed": true,
+        "status": "ok",
+        "sql": "SELECT sku_id FROM bom WHERE material_pn = 'PN-00022' ORDER BY sku_id",
+        "usage": {
+          "prompt_tokens": 2032,
+          "completion_tokens": 134
+        }
+      }
+    },
+    {
+      "id": "T13",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT o.po_id, o.material_pn, o.supplier_id, s.supplier_name, o.qty, o.eta_date\nFROM open_po o JOIN suppliers s USING (supplier_id)\nWHERE o.eta_date > (SELECT max(date) FROM sales_daily)\nORDER BY o.qty DESC\nLIMIT 5",
+        "usage": {
+          "prompt_tokens": 2662,
+          "completion_tokens": 201
+        }
+      },
+      "rag": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT p.po_id, s.supplier_name, p.qty, p.eta_date\nFROM open_po p\nJOIN suppliers s ON p.supplier_id = s.supplier_id\nWHERE p.eta_date > (SELECT max(date) FROM sales_daily)\nORDER BY p.qty DESC, p.po_id\nLIMIT 5",
+        "usage": {
+          "prompt_tokens": 2008,
+          "completion_tokens": 380
+        }
+      }
+    },
+    {
+      "id": "T14",
+      "fixed": {
+        "passed": true,
+        "status": "ok",
+        "sql": "SELECT material_pn, snapshot_date, qty_onhand\nFROM inventory_onhand\nWHERE material_pn = 'PN-00003'\nORDER BY snapshot_date DESC\nLIMIT 1",
+        "usage": {
+          "prompt_tokens": 2658,
+          "completion_tokens": 206
+        }
+      },
+      "rag": {
+        "passed": true,
+        "status": "ok",
+        "sql": "SELECT material_pn, snapshot_date, qty_onhand FROM inventory_onhand WHERE material_pn = 'PN-00003' ORDER BY snapshot_date DESC LIMIT 1",
+        "usage": {
+          "prompt_tokens": 2164,
+          "completion_tokens": 102
+        }
+      }
+    },
+    {
+      "id": "T15",
+      "fixed": {
+        "passed": true,
+        "status": "ok",
+        "sql": "SELECT sku_id, week_start, sell_price\nFROM prices\nWHERE sku_id = 'FOODS_3_090'\nORDER BY week_start DESC\nLIMIT 1",
+        "usage": {
+          "prompt_tokens": 2661,
+          "completion_tokens": 275
+        }
+      },
+      "rag": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT week_start, sell_price\nFROM prices\nWHERE sku_id = 'FOODS_3_090'\n  AND week_start <= (SELECT max(date) FROM sales_daily)\nORDER BY week_start DESC\nLIMIT 1",
+        "usage": {
+          "prompt_tokens": 2171,
+          "completion_tokens": 417
+        }
+      }
+    },
+    {
+      "id": "T16",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT s.sku_id, p.product_name, sum(s.units_sold) AS total_units\nFROM sales_daily s\nJOIN products p USING (sku_id)\nWHERE s.date > (SELECT max(date) FROM sales_daily) - 14\nGROUP BY s.sku_id, p.product_name\nORDER BY total_units DESC\nLIMIT 5",
+        "usage": {
+          "prompt_tokens": 2661,
+          "completion_tokens": 250
+        }
+      },
+      "rag": {
+        "passed": true,
+        "status": "ok",
+        "sql": "SELECT sku_id FROM sales_daily WHERE date > (SELECT max(date) FROM sales_daily) - INTERVAL 14 DAY GROUP BY sku_id ORDER BY sum(units_sold) DESC, sku_id LIMIT 5",
+        "usage": {
+          "prompt_tokens": 2173,
+          "completion_tokens": 376
+        }
+      }
+    },
+    {
+      "id": "T17",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT c.date, c.event_name, SUM(s.units_sold) AS total_sales\nFROM sales_daily s\nJOIN calendar c ON s.date = c.date\nWHERE c.event_name IS NOT NULL\nGROUP BY c.date, c.event_name\nORDER BY total_sales DESC, c.date\nLIMIT 5",
+        "usage": {
+          "prompt_tokens": 2656,
+          "completion_tokens": 760
+        }
+      },
+      "rag": {
+        "passed": true,
+        "status": "ok",
+        "sql": "SELECT c.event_name FROM calendar c JOIN sales_daily s USING (date) WHERE c.event_name IS NOT NULL GROUP BY c.event_name ORDER BY sum(s.units_sold) DESC, c.event_name LIMIT 5",
+        "usage": {
+          "prompt_tokens": 2128,
+          "completion_tokens": 434
+        }
+      }
+    },
+    {
+      "id": "T18",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "WITH today AS (\n  SELECT max(date) AS dt FROM sales_daily\n),\nforecast AS (\n  SELECT sku_id, sum(yhat) AS forecast_units\n  FROM forecast_daily, today\n  WHERE model_name = 'lightgbm'\n    AND date > today.dt\n    AND date <= today.dt + INTERVAL 28 DAY\n  GROUP BY sku_id\n),\nactual AS (\n  SELECT sku_id, sum(units_sold) AS actual_units\n  FROM sales_daily, today\n  WHERE date > today.dt - INTERVAL 28 DAY\n    AND date <= today.dt\n  GROUP BY sku_id\n)\nSELECT f.sku_id, p.product_name, f.forecast_units, COALESCE(a.actual_units, 0) AS actual_units\nFROM forecast f\nLEFT JOIN actual a USING (sku_id)\nJOIN products p USING (sku_id)\nORDER BY f.forecast_units DESC\nLIMIT 5",
+        "usage": {
+          "prompt_tokens": 2676,
+          "completion_tokens": 913
+        }
+      },
+      "rag": {
+        "passed": false,
+        "status": "ok",
+        "sql": "WITH top_skus AS (\n    SELECT sku_id, SUM(yhat) AS forecast_28d\n    FROM forecast_daily\n    WHERE model_name = 'lightgbm'\n    GROUP BY sku_id\n    ORDER BY forecast_28d DESC\n    LIMIT 5\n)\nSELECT\n    t.sku_id,\n    p.product_name,\n    COALESCE(SUM(s.units_sold), 0) AS actual_sales_last_28d\nFROM top_skus t\nJOIN products p ON t.sku_id = p.sku_id\nLEFT JOIN sales_daily s\n    ON t.sku_id = s.sku_id\n    AND s.date > (SELECT MAX(date) FROM sales_daily) - INTERVAL '28 DAYS'\nGROUP BY t.sku_id, p.product_name, t.forecast_28d\nORDER BY t.forecast_28d DESC",
+        "usage": {
+          "prompt_tokens": 2100,
+          "completion_tokens": 2303
+        }
+      }
+    },
+    {
+      "id": "T19",
+      "fixed": {
+        "passed": true,
+        "status": "ok",
+        "sql": "WITH avg_metrics AS (\n  SELECT model_name,\n         avg(mape) AS avg_mape,\n         avg(wrmsse) AS avg_wrmsse\n  FROM forecast_metrics\n  GROUP BY model_name\n)\nSELECT model_name, avg_mape, avg_wrmsse\nFROM avg_metrics\nORDER BY avg_mape, avg_wrmsse\nLIMIT 1",
+        "usage": {
+          "prompt_tokens": 2671,
+          "completion_tokens": 461
+        }
+      },
+      "rag": {
+        "passed": true,
+        "status": "ok",
+        "sql": "SELECT model_name, AVG(mape) AS avg_mape, AVG(wrmsse) AS avg_wrmsse\nFROM forecast_metrics\nGROUP BY model_name\nORDER BY avg_mape, model_name\nLIMIT 1",
+        "usage": {
+          "prompt_tokens": 2068,
+          "completion_tokens": 239
+        }
+      }
+    },
+    {
+      "id": "T20",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT d.material_pn, m.material_name, sum(d.demand_qty) AS total_demand\nFROM v_material_demand_daily d\nJOIN materials m ON d.material_pn = m.material_pn\nWHERE d.date > (SELECT max(date) FROM sales_daily)\n  AND d.date <= (SELECT max(date) FROM sales_daily) + INTERVAL 28 DAY\nGROUP BY d.material_pn, m.material_name\nORDER BY total_demand DESC\nLIMIT 10",
+        "usage": {
+          "prompt_tokens": 2659,
+          "completion_tokens": 775
+        }
+      },
+      "rag": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT v.material_pn, m.material_name\nFROM v_material_demand_daily v\nLEFT JOIN materials m USING (material_pn)\nWHERE v.date > (SELECT max(date) FROM sales_daily)\n  AND v.date <= (SELECT max(date) FROM sales_daily) + INTERVAL 28 DAY\nGROUP BY v.material_pn, m.material_name\nORDER BY sum(v.demand_qty) DESC, v.material_pn\nLIMIT 10",
+        "usage": {
+          "prompt_tokens": 2136,
+          "completion_tokens": 1280
+        }
+      }
+    },
+    {
+      "id": "O01",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT material_pn, risk_level, doi_days, lt_coverage, gap_qty, gap_date\nFROM material_risk\nWHERE eval_date = (SELECT max(eval_date) FROM material_risk)\n  AND risk_level IN ('RED', 'ORANGE')\nORDER BY CASE risk_level WHEN 'RED' THEN 1 ELSE 2 END, gap_qty DESC",
+        "usage": {
+          "prompt_tokens": 2657,
+          "completion_tokens": 227
+        }
+      },
+      "rag": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT material_pn, gap_qty, gap_date, doi_days, risk_level FROM material_risk WHERE eval_date = (SELECT max(eval_date) FROM material_risk) AND risk_level = 'RED' ORDER BY gap_date, gap_qty DESC, material_pn",
+        "usage": {
+          "prompt_tokens": 1984,
+          "completion_tokens": 299
+        }
+      }
+    },
+    {
+      "id": "O02",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT eval_date, commodity, red_count, orange_count, yellow_count, green_count,\n       total_gap_qty\nFROM v_risk_by_commodity\nWHERE eval_date = (SELECT max(eval_date) FROM material_risk)\n  AND commodity = 'PACKAGING'\nORDER BY eval_date",
+        "usage": {
+          "prompt_tokens": 2657,
+          "completion_tokens": 134
+        }
+      },
+      "rag": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT red_count, orange_count, yellow_count, green_count, total_gap_qty\nFROM v_risk_by_commodity\nWHERE eval_date = (SELECT max(eval_date) FROM material_risk)\n  AND commodity = 'PACKAGING'",
+        "usage": {
+          "prompt_tokens": 2129,
+          "completion_tokens": 233
+        }
+      }
+    },
+    {
+      "id": "O03",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT supplier_id, supplier_name, red_orange_material_count, weighted_gap_qty\nFROM v_risk_by_supplier\nWHERE eval_date = (SELECT max(eval_date) FROM material_risk)\nORDER BY weighted_gap_qty DESC\nLIMIT 3",
+        "usage": {
+          "prompt_tokens": 2658,
+          "completion_tokens": 295
+        }
+      },
+      "rag": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT supplier_name, weighted_gap_qty\nFROM v_risk_by_supplier\nWHERE eval_date = (SELECT max(eval_date) FROM material_risk)\nORDER BY weighted_gap_qty DESC, supplier_id\nLIMIT 3",
+        "usage": {
+          "prompt_tokens": 2056,
+          "completion_tokens": 188
+        }
+      }
+    },
+    {
+      "id": "O04",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT material_pn, doi_days, gap_qty, gap_date, risk_level\nFROM material_risk\nWHERE eval_date = (SELECT max(eval_date) FROM material_risk)\n  AND gap_qty > 0\nORDER BY gap_qty DESC, material_pn",
+        "usage": {
+          "prompt_tokens": 2652,
+          "completion_tokens": 279
+        }
+      },
+      "rag": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT material_pn, risk_level, doi_days, gap_qty, gap_date, risk_reasons\nFROM material_risk\nWHERE eval_date = (SELECT max(eval_date) FROM material_risk)\n  AND gap_qty > 0\nORDER BY gap_qty DESC, material_pn",
+        "usage": {
+          "prompt_tokens": 2010,
+          "completion_tokens": 199
+        }
+      }
+    },
+    {
+      "id": "O05",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT r.material_pn, m.material_name, r.risk_level, \n       min(su.supplier_name) AS supplier_name,\n       b.sku_id, p.product_name\nFROM material_risk r\nJOIN materials m USING (material_pn)\nJOIN supply_split ss USING (material_pn)\nJOIN suppliers su USING (supplier_id)\nJOIN bom b USING (material_pn)\nJOIN products p USING (sku_id)\nWHERE r.eval_date = (SELECT max(eval_date) FROM material_risk)\n  AND r.risk_level = 'RED'\n  AND (SELECT count(*) FROM supply_split s2 WHERE s2.material_pn = r.material_pn) = 1\nORDER BY r.material_pn, b.sku_id",
+        "usage": {
+          "prompt_tokens": 2654,
+          "completion_tokens": 482
+        }
+      },
+      "rag": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT DISTINCT p.sku_id, p.product_name\nFROM material_risk mr\nJOIN bom USING (material_pn)\nJOIN products p USING (sku_id)\nWHERE mr.eval_date = (SELECT max(eval_date) FROM material_risk)\n  AND mr.risk_level = 'RED'\n  AND mr.material_pn IN (\n    SELECT material_pn FROM supply_split GROUP BY material_pn HAVING COUNT(DISTINCT supplier_id) = 1\n  )\nORDER BY p.sku_id",
+        "usage": {
+          "prompt_tokens": 1999,
+          "completion_tokens": 472
+        }
+      }
+    },
+    {
+      "id": "O06",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT p.sku_id, p.product_name, sum(s.units_sold) AS total_units\nFROM sales_daily s\nJOIN products p USING (sku_id)\nWHERE s.date > (SELECT max(date) FROM sales_daily) - INTERVAL 14 DAY\nGROUP BY p.sku_id, p.product_name\nORDER BY total_units DESC, p.sku_id\nLIMIT 5",
+        "usage": {
+          "prompt_tokens": 2653,
+          "completion_tokens": 175
+        }
+      },
+      "rag": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT p.product_name\nFROM sales_daily s\nJOIN products p ON s.sku_id = p.sku_id\nWHERE s.date > (SELECT max(date) FROM sales_daily) - INTERVAL 14 DAY\nGROUP BY p.product_name\nORDER BY sum(s.units_sold) DESC, p.product_name\nLIMIT 5",
+        "usage": {
+          "prompt_tokens": 2137,
+          "completion_tokens": 233
+        }
+      }
+    },
+    {
+      "id": "O07",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT r.material_pn, m.material_name, r.gap_qty, r.gap_date, r.risk_level\nFROM material_risk r JOIN materials m USING (material_pn)\nWHERE r.eval_date = (SELECT max(eval_date) FROM material_risk)\n  AND r.gap_qty > 0\nORDER BY r.gap_date, r.gap_qty DESC, r.material_pn\nLIMIT 10",
+        "usage": {
+          "prompt_tokens": 2659,
+          "completion_tokens": 350
+        }
+      },
+      "rag": {
+        "passed": true,
+        "status": "ok",
+        "sql": "SELECT material_pn FROM material_risk WHERE eval_date = (SELECT max(eval_date) FROM material_risk) AND gap_qty > 0 ORDER BY gap_date ASC, gap_qty DESC, material_pn LIMIT 10",
+        "usage": {
+          "prompt_tokens": 2043,
+          "completion_tokens": 530
+        }
+      }
+    },
+    {
+      "id": "O08",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT m.material_pn, m.material_name, r.gap_qty, r.doi_days, r.risk_reasons\nFROM material_risk r JOIN materials m USING (material_pn)\nWHERE r.eval_date = (SELECT max(eval_date) FROM material_risk)\nORDER BY r.gap_qty DESC, r.material_pn\nLIMIT 1",
+        "usage": {
+          "prompt_tokens": 2659,
+          "completion_tokens": 430
+        }
+      },
+      "rag": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT material_pn, gap_qty, doi_days, gap_date, risk_reasons FROM material_risk WHERE eval_date = (SELECT max(eval_date) FROM material_risk) ORDER BY gap_qty DESC NULLS LAST LIMIT 1",
+        "usage": {
+          "prompt_tokens": 2086,
+          "completion_tokens": 168
+        }
+      }
+    },
+    {
+      "id": "O09",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT commodity, red_count, total_gap_qty\nFROM v_risk_by_commodity\nWHERE eval_date = (SELECT max(eval_date) FROM material_risk)\nORDER BY red_count DESC, total_gap_qty DESC\nLIMIT 1",
+        "usage": {
+          "prompt_tokens": 2651,
+          "completion_tokens": 209
+        }
+      },
+      "rag": {
+        "passed": true,
+        "status": "ok",
+        "sql": "SELECT commodity FROM v_risk_by_commodity WHERE eval_date = (SELECT max(eval_date) FROM material_risk) ORDER BY red_count DESC, total_gap_qty DESC LIMIT 1",
+        "usage": {
+          "prompt_tokens": 2048,
+          "completion_tokens": 343
+        }
+      }
+    },
+    {
+      "id": "O10",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT item_group, red_count\nFROM v_risk_by_item_group\nWHERE eval_date = (SELECT max(eval_date) FROM material_risk)\nORDER BY red_count DESC\nLIMIT 1",
+        "usage": {
+          "prompt_tokens": 2651,
+          "completion_tokens": 115
+        }
+      },
+      "rag": {
+        "passed": true,
+        "status": "ok",
+        "sql": "SELECT item_group FROM v_risk_by_item_group WHERE eval_date = (SELECT max(eval_date) FROM material_risk) ORDER BY red_count DESC, item_group LIMIT 1",
+        "usage": {
+          "prompt_tokens": 2047,
+          "completion_tokens": 227
+        }
+      }
+    },
+    {
+      "id": "O11",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "WITH mat_sku_cnt AS (\n  SELECT b.material_pn, m.material_name, count(DISTINCT b.sku_id) AS sku_count\n  FROM bom b\n  JOIN materials m USING (material_pn)\n  GROUP BY b.material_pn, m.material_name\n),\nmax_cnt AS (\n  SELECT material_pn, material_name, sku_count,\n         RANK() OVER (ORDER BY sku_count DESC) AS rnk\n  FROM mat_sku_cnt\n)\nSELECT m.material_pn, m.material_name, m.sku_count,\n       b.sku_id, p.product_name\nFROM max_cnt m\nJOIN bom b ON m.material_pn = b.material_pn\nJOIN products p ON b.sku_id = p.sku_id\nWHERE m.rnk = 1\nORDER BY m.material_pn, b.sku_id",
+        "usage": {
+          "prompt_tokens": 2666,
+          "completion_tokens": 501
+        }
+      },
+      "rag": {
+        "passed": false,
+        "status": "ok",
+        "sql": "WITH max_shared AS (\n    SELECT count(DISTINCT sku_id) AS cnt\n    FROM bom\n    GROUP BY material_pn\n    ORDER BY cnt DESC\n    LIMIT 1\n)\nSELECT b.material_pn, b.sku_id\nFROM bom b\nJOIN (\n    SELECT material_pn\n    FROM bom\n    GROUP BY material_pn\n    HAVING count(DISTINCT sku_id) = (SELECT cnt FROM max_shared)\n) top_materials ON b.material_pn = top_materials.material_pn\nORDER BY b.material_pn, b.sku_id",
+        "usage": {
+          "prompt_tokens": 1977,
+          "completion_tokens": 710
+        }
+      }
+    },
+    {
+      "id": "O12",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT supplier_id, supplier_name, red_orange_material_count, weighted_gap_qty\nFROM v_risk_by_supplier\nWHERE eval_date = (SELECT max(eval_date) FROM material_risk)\nORDER BY weighted_gap_qty DESC\nLIMIT 1",
+        "usage": {
+          "prompt_tokens": 2662,
+          "completion_tokens": 211
+        }
+      },
+      "rag": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT supplier_id, supplier_name, red_orange_material_count, weighted_gap_qty FROM v_risk_by_supplier WHERE eval_date = (SELECT max(eval_date) FROM material_risk) ORDER BY weighted_gap_qty DESC, supplier_id LIMIT 1",
+        "usage": {
+          "prompt_tokens": 2021,
+          "completion_tokens": 168
+        }
+      }
+    },
+    {
+      "id": "O13",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT p.sku_id, p.product_name, sum(f.yhat) AS total_forecast\nFROM forecast_daily f\nJOIN products p USING (sku_id)\nWHERE f.model_name = 'lightgbm'\n  AND f.date > (SELECT max(date) FROM sales_daily)\nGROUP BY p.sku_id, p.product_name\nORDER BY total_forecast DESC, p.sku_id\nLIMIT 3",
+        "usage": {
+          "prompt_tokens": 2657,
+          "completion_tokens": 517
+        }
+      },
+      "rag": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT f.sku_id, p.product_name, sum(f.yhat) AS total_forecast\nFROM forecast_daily f\nJOIN products p ON f.sku_id = p.sku_id\nWHERE f.model_name = 'lightgbm'\nGROUP BY f.sku_id, p.product_name\nORDER BY total_forecast DESC\nLIMIT 3",
+        "usage": {
+          "prompt_tokens": 2117,
+          "completion_tokens": 679
+        }
+      }
+    },
+    {
+      "id": "O14",
+      "fixed": {
+        "passed": true,
+        "status": "ok",
+        "sql": "WITH today AS (\n  SELECT max(date) AS dt FROM sales_daily\n),\nactual_28d AS (\n  SELECT sum(units_sold) AS actual_sales\n  FROM sales_daily, today\n  WHERE date > today.dt - INTERVAL 28 DAY\n),\nforecast_28d AS (\n  SELECT sum(yhat) AS forecast_sales\n  FROM forecast_daily, today\n  WHERE model_name = 'lightgbm'\n    AND date > today.dt\n)\nSELECT forecast_sales, actual_sales\nFROM forecast_28d, actual_28d",
+        "usage": {
+          "prompt_tokens": 2666,
+          "completion_tokens": 1207
+        }
+      },
+      "rag": {
+        "passed": true,
+        "status": "ok",
+        "sql": "SELECT\n  (SELECT sum(yhat) FROM forecast_daily WHERE model_name='lightgbm' AND date > (SELECT max(date) FROM sales_daily) AND date <= (SELECT max(date) FROM sales_daily) + INTERVAL 28 DAY) AS lightgbm_future_28d_forecast,\n  (SELECT sum(units_sold) FROM sales_daily WHERE date > (SELECT max(date) FROM sales_daily) - INTERVAL 28 DAY AND date <= (SELECT max(date) FROM sales_daily)) AS actual_last_28d",
+        "usage": {
+          "prompt_tokens": 2080,
+          "completion_tokens": 585
+        }
+      }
+    },
+    {
+      "id": "O15",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT DISTINCT r.material_pn, m.material_name, r.gap_qty\nFROM material_risk r\nJOIN materials m USING (material_pn)\nWHERE r.eval_date = (SELECT max(eval_date) FROM material_risk)\n  AND r.gap_qty > 0\n  AND EXISTS (\n    SELECT 1 FROM open_po o\n    WHERE o.material_pn = r.material_pn\n      AND o.eta_date > (SELECT max(date) FROM sales_daily)\n  )\nORDER BY r.gap_qty DESC",
+        "usage": {
+          "prompt_tokens": 2656,
+          "completion_tokens": 313
+        }
+      },
+      "rag": {
+        "passed": true,
+        "status": "ok",
+        "sql": "SELECT DISTINCT mr.material_pn\nFROM material_risk mr\nWHERE mr.eval_date = (SELECT max(eval_date) FROM material_risk)\n  AND mr.gap_qty > 0\n  AND EXISTS (\n    SELECT 1 FROM open_po op\n    WHERE op.material_pn = mr.material_pn\n      AND op.eta_date > (SELECT max(date) FROM sales_daily)\n  )\nORDER BY mr.material_pn",
+        "usage": {
+          "prompt_tokens": 2033,
+          "completion_tokens": 195
+        }
+      }
+    },
+    {
+      "id": "O16",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT m.material_pn, m.material_name, r.supplier_concentration, r.risk_level\nFROM material_risk r\nJOIN materials m USING (material_pn)\nWHERE r.eval_date = (SELECT max(eval_date) FROM material_risk)\n  AND r.supplier_concentration > 70.00\n  AND r.risk_level != 'GREEN'\nORDER BY r.supplier_concentration DESC, m.material_pn",
+        "usage": {
+          "prompt_tokens": 2660,
+          "completion_tokens": 408
+        }
+      },
+      "rag": {
+        "passed": true,
+        "status": "ok",
+        "sql": "SELECT material_pn FROM material_risk WHERE eval_date = (SELECT max(eval_date) FROM material_risk) AND supplier_concentration > 70 AND risk_level != 'GREEN' ORDER BY material_pn",
+        "usage": {
+          "prompt_tokens": 2006,
+          "completion_tokens": 162
+        }
+      }
+    },
+    {
+      "id": "O17",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT c.event_name, sum(s.units_sold) AS total_units_sold\nFROM sales_daily s\nJOIN calendar c ON s.date = c.date\nWHERE c.event_name IS NOT NULL\nGROUP BY c.event_name\nORDER BY total_units_sold DESC\nLIMIT 1",
+        "usage": {
+          "prompt_tokens": 2650,
+          "completion_tokens": 206
+        }
+      },
+      "rag": {
+        "passed": true,
+        "status": "ok",
+        "sql": "SELECT c.event_name FROM calendar c JOIN sales_daily s USING (date) WHERE c.event_name IS NOT NULL GROUP BY c.event_name ORDER BY sum(s.units_sold) DESC LIMIT 1",
+        "usage": {
+          "prompt_tokens": 2107,
+          "completion_tokens": 118
+        }
+      }
+    },
+    {
+      "id": "O18",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT p.sku_id, p.product_name, pr.sell_price\nFROM products p\nJOIN (\n  SELECT sku_id, sell_price\n  FROM (\n    SELECT sku_id, sell_price,\n           ROW_NUMBER() OVER (PARTITION BY sku_id ORDER BY week_start DESC) AS rn\n    FROM prices\n  ) t\n  WHERE rn = 1\n) pr USING (sku_id)\nORDER BY pr.sell_price DESC\nLIMIT 5",
+        "usage": {
+          "prompt_tokens": 2658,
+          "completion_tokens": 243
+        }
+      },
+      "rag": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT p.sku_id, pr.product_name, p.sell_price\nFROM (\n  SELECT sku_id, week_start, sell_price,\n         ROW_NUMBER() OVER (PARTITION BY sku_id ORDER BY week_start DESC) AS rn\n  FROM prices\n) p\nJOIN products pr ON p.sku_id = pr.sku_id\nWHERE p.rn = 1\nORDER BY p.sell_price DESC, p.sku_id\nLIMIT 5",
+        "usage": {
+          "prompt_tokens": 2151,
+          "completion_tokens": 478
+        }
+      }
+    },
+    {
+      "id": "O19",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT model_name, avg(mape) AS avg_mape\nFROM forecast_metrics\nGROUP BY model_name\nORDER BY avg_mape, model_name\nLIMIT 1",
+        "usage": {
+          "prompt_tokens": 2654,
+          "completion_tokens": 145
+        }
+      },
+      "rag": {
+        "passed": true,
+        "status": "ok",
+        "sql": "SELECT model_name FROM forecast_metrics GROUP BY model_name ORDER BY avg(mape), model_name LIMIT 1",
+        "usage": {
+          "prompt_tokens": 2147,
+          "completion_tokens": 117
+        }
+      }
+    },
+    {
+      "id": "O20",
+      "fixed": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT risk_level, count(*) AS material_count\nFROM material_risk\nWHERE eval_date = (SELECT max(eval_date) FROM material_risk)\nGROUP BY risk_level\nORDER BY risk_level",
+        "usage": {
+          "prompt_tokens": 2654,
+          "completion_tokens": 170
+        }
+      },
+      "rag": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT risk_level, COUNT(*) AS cnt FROM material_risk WHERE eval_date = (SELECT max(eval_date) FROM material_risk) GROUP BY risk_level ORDER BY risk_level",
+        "usage": {
+          "prompt_tokens": 2018,
+          "completion_tokens": 257
+        }
+      }
+    },
+    {
+      "id": "A01",
+      "fixed": {
+        "passed": true,
+        "status": "no_answer",
+        "sql": null,
+        "usage": {
+          "prompt_tokens": 2655,
+          "completion_tokens": 103
+        }
+      },
+      "rag": {
+        "passed": true,
+        "status": "no_answer",
+        "sql": null,
+        "usage": {
+          "prompt_tokens": 1890,
+          "completion_tokens": 98
+        }
+      }
+    },
+    {
+      "id": "A02",
+      "fixed": {
+        "passed": true,
+        "status": "no_answer",
+        "sql": null,
+        "usage": {
+          "prompt_tokens": 2650,
+          "completion_tokens": 65
+        }
+      },
+      "rag": {
+        "passed": true,
+        "status": "no_answer",
+        "sql": null,
+        "usage": {
+          "prompt_tokens": 1867,
+          "completion_tokens": 71
+        }
+      }
+    },
+    {
+      "id": "A03",
+      "fixed": {
+        "passed": true,
+        "status": "no_answer",
+        "sql": null,
+        "usage": {
+          "prompt_tokens": 2651,
+          "completion_tokens": 80
+        }
+      },
+      "rag": {
+        "passed": true,
+        "status": "no_answer",
+        "sql": null,
+        "usage": {
+          "prompt_tokens": 1917,
+          "completion_tokens": 51
+        }
+      }
+    },
+    {
+      "id": "A04",
+      "fixed": {
+        "passed": true,
+        "status": "no_answer",
+        "sql": null,
+        "usage": {
+          "prompt_tokens": 2659,
+          "completion_tokens": 107
+        }
+      },
+      "rag": {
+        "passed": true,
+        "status": "no_answer",
+        "sql": null,
+        "usage": {
+          "prompt_tokens": 2056,
+          "completion_tokens": 60
+        }
+      }
+    },
+    {
+      "id": "A05",
+      "fixed": {
+        "passed": true,
+        "status": "no_answer",
+        "sql": null,
+        "usage": {
+          "prompt_tokens": 2654,
+          "completion_tokens": 138
+        }
+      },
+      "rag": {
+        "passed": true,
+        "status": "no_answer",
+        "sql": null,
+        "usage": {
+          "prompt_tokens": 1854,
+          "completion_tokens": 52
+        }
+      }
+    },
+    {
+      "id": "A06",
+      "fixed": {
+        "passed": true,
+        "status": "no_answer",
+        "sql": null,
+        "usage": {
+          "prompt_tokens": 2654,
+          "completion_tokens": 145
+        }
+      },
+      "rag": {
+        "passed": true,
+        "status": "no_answer",
+        "sql": null,
+        "usage": {
+          "prompt_tokens": 1821,
+          "completion_tokens": 46
+        }
+      }
+    },
+    {
+      "id": "A07",
+      "fixed": {
+        "passed": true,
+        "status": "no_answer",
+        "sql": null,
+        "usage": {
+          "prompt_tokens": 2654,
+          "completion_tokens": 71
+        }
+      },
+      "rag": {
+        "passed": true,
+        "status": "no_answer",
+        "sql": null,
+        "usage": {
+          "prompt_tokens": 1872,
+          "completion_tokens": 57
+        }
+      }
+    },
+    {
+      "id": "A08",
+      "fixed": {
+        "passed": true,
+        "status": "no_answer",
+        "sql": null,
+        "usage": {
+          "prompt_tokens": 2653,
+          "completion_tokens": 28
+        }
+      },
+      "rag": {
+        "passed": true,
+        "status": "no_answer",
+        "sql": null,
+        "usage": {
+          "prompt_tokens": 1810,
+          "completion_tokens": 32
+        }
+      }
+    },
+    {
+      "id": "A09",
+      "fixed": {
+        "passed": true,
+        "status": "no_answer",
+        "sql": null,
+        "usage": {
+          "prompt_tokens": 2658,
+          "completion_tokens": 49
+        }
+      },
+      "rag": {
+        "passed": true,
+        "status": "no_answer",
+        "sql": null,
+        "usage": {
+          "prompt_tokens": 1816,
+          "completion_tokens": 48
+        }
+      }
+    },
+    {
+      "id": "A10",
+      "fixed": {
+        "passed": true,
+        "status": "no_answer",
+        "sql": null,
+        "usage": {
+          "prompt_tokens": 2651,
+          "completion_tokens": 137
+        }
+      },
+      "rag": {
+        "passed": false,
+        "status": "ok",
+        "sql": "SELECT material_pn, gap_date, \n       (gap_date - (SELECT max(date) FROM sales_daily)) AS days_until_shortage\nFROM material_risk\nWHERE eval_date = (SELECT max(eval_date) FROM material_risk)\n  AND risk_level = 'RED'\n  AND gap_date IS NOT NULL\nORDER BY gap_date",
+        "usage": {
+          "prompt_tokens": 1965,
+          "completion_tokens": 359
+        }
+      }
+    }
+  ],
+  "summary": {
+    "topk_same_category_rate": 0.88,
+    "top1_same_category_rate": 0.36,
+    "similarity_mean": 0.6525812653737634,
+    "similarity_min": 0.43963490347109396,
+    "fixed_accuracy": 0.32,
+    "rag_accuracy": 0.52,
+    "fixed_usage": {
+      "prompt_tokens": 132853,
+      "completion_tokens": 14563
+    },
+    "rag_usage": {
+      "prompt_tokens": 101445,
+      "completion_tokens": 15280
+    },
+    "estimated_cost_usd": 0.04115776
+  }
+}

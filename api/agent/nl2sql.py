@@ -153,7 +153,9 @@ LIMIT 5
 SQL_FENCE = re.compile(r"```sql\s*\n?(.*?)```", re.IGNORECASE | re.DOTALL)
 
 
-def build_prompt(question: str) -> list[Message]:
+def build_prompt(
+    question: str, few_shots: Sequence[FewShot] | None = None
+) -> list[Message]:
     """Build system knowledge, eight executable examples, one refusal, and the question."""
     glossary = render_glossary(load_glossary())
     system = f"""You are ChainPilot's supply-chain NL-to-SQL compiler.
@@ -178,16 +180,20 @@ Output rules:
    for the data part; the explanation is handled by a later step.
 """
     messages: list[Message] = [{"role": "system", "content": system}]
-    for example in FEW_SHOTS:
+    for example in FEW_SHOTS if few_shots is None else few_shots:
         messages.append({"role": "user", "content": example.question})
         messages.append({"role": "assistant", "content": example.answer})
     messages.append({"role": "user", "content": question})
     return messages
 
 
-def generate_sql(question: str, llm: ChatLLM) -> NL2SQLResult:
+def generate_sql(
+    question: str,
+    llm: ChatLLM,
+    few_shots: Sequence[FewShot] | None = None,
+) -> NL2SQLResult:
     """Ask the LLM and strictly classify its fenced-SQL response."""
-    response = llm.chat(build_prompt(question), temperature=0.0, timeout=30)
+    response = llm.chat(build_prompt(question, few_shots), temperature=0.0, timeout=30)
     raw = response.content.strip(
         string.whitespace + string.punctuation + "，。！？；：、…（）【】《》“”‘’"
     )
