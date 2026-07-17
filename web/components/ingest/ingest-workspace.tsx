@@ -132,6 +132,7 @@ export function IngestWorkspace() {
     eta_date: "",
   });
   const [report, setReport] = useState<IngestValidationReport | null>(null);
+  const [reRegistering, setReRegistering] = useState(false);
   const [importResult, setImportResult] = useState<IngestImportResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
@@ -195,6 +196,7 @@ export function IngestWorkspace() {
       const saved = await saveIngestTemplate(mapping);
       setTemplate(saved);
       setTemplatePreview(null);
+      setReRegistering(false);
       await refreshBatches();
     } catch (requestError) {
       setError(errorMessage(requestError));
@@ -278,12 +280,27 @@ export function IngestWorkspace() {
         </div>
       )}
 
-      {!template?.exists ? (
+      {!template?.exists || reRegistering ? (
         <Card className="border border-border bg-card ring-0">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <FileSpreadsheet className="size-5" aria-hidden="true" />
-              第一步：注册历史样例模板
+            <CardTitle className="flex items-center justify-between gap-2 text-base">
+              <span className="flex items-center gap-2">
+                <FileSpreadsheet className="size-5" aria-hidden="true" />
+                {reRegistering ? "重新注册模板（保存后覆盖当前映射）" : "第一步：注册历史样例模板"}
+              </span>
+              {reRegistering && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setReRegistering(false);
+                    setTemplatePreview(null);
+                    setError(null);
+                  }}
+                >
+                  取消，保留当前模板
+                </Button>
+              )}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -369,6 +386,30 @@ export function IngestWorkspace() {
         </Card>
       ) : (
         <>
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 px-4 py-3 text-sm">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-medium">当前模板：</span>
+              {TARGETS.map(({ key, label }) => (
+                <Badge variant="secondary" className="font-normal" key={key}>
+                  {template?.mapping?.[key] ?? "?"} → {label}
+                </Badge>
+              ))}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setReRegistering(true);
+                setTemplatePreview(null);
+                setReport(null);
+                setImportResult(null);
+                setError(null);
+              }}
+            >
+              <RotateCcw aria-hidden="true" />
+              重新注册模板
+            </Button>
+          </div>
           <Card className="border border-border bg-card ring-0">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
