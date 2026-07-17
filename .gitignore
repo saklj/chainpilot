@@ -25,3 +25,4 @@ data/chainpilot.duckdb
 # misc
 .DS_Store
 data/chainpilot.duckdb.bak-*
+/*.pdf
