@@ -4,8 +4,6 @@
 
 **Supply-chain analytics agent** — demand forecasting, shortage risk grading, evidence-guarded NL2SQL, root-cause diagnosis, outage simulation, and human-gated data ingestion. *(English summary below.)*
 
-> 个人全栈项目（2026-07，4 周交付）。数据为 Kaggle M5 公开销量 + 脚本模拟制造层，全部随机过程固定 seed=42，所有指标可复现。
-
 ## 它解决什么问题
 
 供应链计划员每天面对的三件事：**看现状**（哪些物料要缺料）、**问数据**（临时组合问题没有现成报表）、**追原因**（为什么这颗料红了）。ChainPilot 用一套可评测、可解释、带硬护栏的 AI 系统覆盖这条链路——每个数字都能回查出处，答不了的问题明确拒答。
@@ -48,7 +46,7 @@ flowchart LR
 
 ## Quickstart（Docker，3 步）
 
-前提：Docker；Kaggle 账号（下载 M5 数据用）；DeepSeek API key 可选（没有也能跑，LLM 功能优雅降级）。
+前提：Docker；Kaggle 账号（下载 M5 数据用）；DeepSeek API key 可选。
 
 ```bash
 # 1. 建库（宿主机执行一次；Kaggle 凭据配置见脚本头部说明）
@@ -87,8 +85,19 @@ cd web && npm install && npm run dev                  # 前端 :3000
 - **数据接入三部曲**：Excel 模板注册上传（LLM 仅建议列映射）→ IMAP 邮件半自动收件（白名单+人工确认闸门）→ 确定性清洗规则（逐格 diff，只修格式不猜内容）；批次追踪一键撤销
 - **Power BI 双轨**：`python data/scripts/export_bi.py` 导出 5 表星型模型 → Power BI Desktop 看板
 
-<!-- TODO(T8): demo GIF -->
-<!-- TODO(T8): Power BI 看板截图 ×2（docs/assets/） -->
+## 界面预览
+
+**供应风险看板** — KPI 概览 → 四级风险表 → 单料钻取：
+
+![供应风险看板](docs/assets/screenshot_dashboard.png)
+
+**供应风险周报** — 数字 SQL 直出 + LLM 叙述，图表化环比，历史周报可回溯：
+
+![供应风险周报](docs/assets/screenshot_report.png)
+
+**Excel 数据接入** — 模板注册 + 纯代码校验 + 邮件收件箱，人工确认后才写库：
+
+![Excel 数据接入](docs/assets/screenshot_ingest.png)
 
 ## 设计原则（详见 docs/00_项目蓝图.md）
 
