@@ -50,10 +50,14 @@ import {
   type WhatIfSupplier,
 } from "@/lib/schemas";
 
-export const API_BASE = (process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8000").replace(
-  /\/$/,
-  "",
-);
+// Server-side rendering may run inside a container where the API is reachable
+// only via its service name (API_ORIGIN); browsers keep using the public URL.
+const FALLBACK_API_BASE = "http://localhost:8000";
+export const API_BASE = (
+  typeof window === "undefined"
+    ? (process.env.API_ORIGIN ?? process.env.NEXT_PUBLIC_API_BASE ?? FALLBACK_API_BASE)
+    : (process.env.NEXT_PUBLIC_API_BASE ?? FALLBACK_API_BASE)
+).replace(/\/$/, "");
 
 export class ApiError extends Error {
   constructor(
