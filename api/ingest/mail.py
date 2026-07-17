@@ -125,7 +125,13 @@ def parse_mime_attachments(raw_message: bytes, message_uid: str) -> list[Incomin
 
 
 class ImapEmailSource:
-    """Fetch UNSEEN messages; all imaplib operations stay in one thin method."""
+    """Fetch UNSEEN messages; all imaplib operations stay in one thin method.
+
+    Personal mailboxes can hold hundreds of unread messages, so each poll scans
+    only the newest ``fetch_limit`` of them, downloads with BODY.PEEK[] (which
+    does not set ``\\Seen``), and flags only messages that actually carried an
+    .xlsx attachment — everything else keeps its unread status untouched.
+    """
 
     def __init__(
         self,
@@ -134,16 +140,20 @@ class ImapEmailSource:
         user: str,
         password: str,
         folder: str = "INBOX",
+        fetch_limit: int = 25,
+        timeout: float = 15.0,
     ) -> None:
         self.host = host
         self.port = port
         self.user = user
         self.password = password
         self.folder = folder
+        self.fetch_limit = fetch_limit
+        self.timeout = timeout
 
-    def _fetch_unseen_messages(self) -> list[tuple[str, bytes]]:
-        messages: list[tuple[str, bytes]] = []
-        with imaplib.IMAP4_SSL(self.host, self.port) as client:
+    def fetch_new(self) -> list[IncomingAttachment]:
+        attachments: list[IncomingAttachment] = []
+        with imaplib.IMAP4_SSL(self.host, self.port, timeout=self.timeout) as client:
             client.login(self.user, self.password)
             status, _ = client.select(self.folder)
             if status != "OK":
@@ -151,8 +161,8 @@ class ImapEmailSource:
             status, search_data = client.uid("search", None, "UNSEEN")
             if status != "OK":
                 raise RuntimeError("Unable to search IMAP mailbox")
-            for raw_uid in search_data[0].split():
-                status, fetched = client.uid("fetch", raw_uid, "(RFC822)")
+            for raw_uid in search_data[0].split()[-self.fetch_limit :]:
+                status, fetched = client.uid("fetch", raw_uid, "(BODY.PEEK[])")
                 if status != "OK":
                     raise RuntimeError(f"Unable to fetch IMAP message {raw_uid!r}")
                 raw_message = next(
@@ -164,17 +174,14 @@ class ImapEmailSource:
                     None,
                 )
                 if raw_message is None:
-                    raise RuntimeError(f"IMAP message {raw_uid!r} has no RFC822 body")
-                messages.append((raw_uid.decode("ascii", errors="replace"), raw_message))
-                client.uid("store", raw_uid, "+FLAGS", "\\Seen")
-        return messages
-
-    def fetch_new(self) -> list[IncomingAttachment]:
-        return [
-            attachment
-            for uid, raw_message in self._fetch_unseen_messages()
-            for attachment in parse_mime_attachments(raw_message, uid)
-        ]
+                    raise RuntimeError(f"IMAP message {raw_uid!r} has no message body")
+                parsed = parse_mime_attachments(
+                    raw_message, raw_uid.decode("ascii", errors="replace")
+                )
+                if parsed:
+                    attachments.extend(parsed)
+                    client.uid("store", raw_uid, "+FLAGS", "\\Seen")
+        return attachments
 
 
 class DirectoryEmailSource:
