@@ -48,6 +48,11 @@ def db_copy(tmp_path: Path) -> Path:
         pytest.skip("real DuckDB fixture is unavailable")
     destination = tmp_path / "chainpilot.duckdb"
     shutil.copyfile(REAL_DB, destination)
+    # The real DB evolves as the user registers templates / polls mail;
+    # normalize the copy to "no ingest state" so assertions stay deterministic.
+    with duckdb.connect(str(destination)) as connection:
+        for table in ("ingest_mail_item", "ingest_batch_row", "ingest_batch", "ingest_template"):
+            connection.execute(f"DROP TABLE IF EXISTS {table}")
     return destination
 
 
