@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from dataclasses import dataclass
 from collections.abc import Generator
 from typing import Any, Literal, Protocol
@@ -131,7 +132,12 @@ def get_po_status(connection: duckdb.DuckDBPyConnection, material_pn: str) -> To
     for row in rows:
         totals[str(row[4])] += int(row[3])
     text = json.dumps(
-        {"po_count": len(rows), "bucket_qty": totals, "details": [dict(zip(columns, row, strict=True)) for row in rows]},
+        {
+            "po_count": len(rows),
+            "horizon_days": 28,
+            "bucket_qty": totals,
+            "details": [dict(zip(columns, row, strict=True)) for row in rows],
+        },
         ensure_ascii=False,
         default=str,
     )
@@ -173,7 +179,9 @@ def _system_prompt() -> str:
         "你是只读供应链缺料诊断 Agent。每步只输出一个 JSON 对象，不要 markdown。\n"
         f"工具：\n{tools}\n类别定义（按定义判断，勿凭名称猜测）：\n{categories}\n"
         '行动格式：{"thought":"...","action":"工具名","args":{...}}\n'
-        '结论格式：{"action":"final","category":"类别","root_cause":"引用工具数字的一段归因"}'
+        '结论格式：{"action":"final","category":"类别","root_cause":"引用工具数字的一段归因"}\n'
+        "硬规则：root_cause 中出现的每个数字都必须在某次 observation 中原样出现过；"
+        "不要自行加减乘除产生新数字（如换算覆盖天数、比率），不要引用 observation 之外的常数。"
     )
 
 
@@ -261,7 +269,19 @@ def diagnose_material_events(
             if category not in CATEGORIES:
                 category = "unknown"
             root_cause = str(parsed.get("root_cause", "")).strip()
-            evidence = SafeResult(True, ["evidence"], [row for item in observations for row in item.rows], sum(len(item.rows) for item in observations))
+            # Evidence must cover everything the model actually saw: observation
+            # texts include tool-computed aggregates (bucket totals, po_count,
+            # horizon_days) that are absent from raw rows, so extract their
+            # numbers too — otherwise citing them degrades a correct conclusion.
+            text_numbers = {
+                number
+                for item in observations
+                for number in re.findall(r"-?\d+(?:\.\d+)?", item.text)
+            }
+            evidence_rows = [row for item in observations for row in item.rows] + [
+                (float(number) if "." in number else int(number),) for number in text_numbers
+            ]
+            evidence = SafeResult(True, ["evidence"], evidence_rows, len(evidence_rows))
             verdict = verify_answer(root_cause, evidence, f"诊断 {material_pn}")
             degraded = verdict.verdict == "fail" or not root_cause
             if degraded:
