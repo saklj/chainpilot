@@ -272,7 +272,7 @@ export function RiskTable({ initialMaterials, counts }: RiskTableProps) {
       </Card>
 
       <Sheet open={selectedPn !== null} onOpenChange={(open) => !open && setSelectedPn(null)}>
-        <SheetContent className="sm:max-w-2xl">
+        <SheetContent className="data-[side=right]:sm:max-w-2xl">
           <SheetHeader className="border-b border-border px-6 pr-12">
             <SheetTitle>{detail?.material_pn ?? selectedPn ?? "物料详情"}</SheetTitle>
             <SheetDescription>{detail?.material_name ?? "风险钻取详情"}</SheetDescription>
