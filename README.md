@@ -4,6 +4,8 @@
 
 **Supply-chain analytics agent** — demand forecasting, shortage risk grading, evidence-guarded NL2SQL, root-cause diagnosis, outage simulation, and human-gated data ingestion. *(English summary below.)*
 
+![ChainPilot demo](docs/assets/demo.gif)
+
 ## 它解决什么问题
 
 供应链计划员每天面对的三件事：**看现状**（哪些物料要缺料）、**问数据**（临时组合问题没有现成报表）、**追原因**（为什么这颗料红了）。ChainPilot 用一套可评测、可解释、带硬护栏的 AI 系统覆盖这条链路——每个数字都能回查出处，答不了的问题明确拒答。

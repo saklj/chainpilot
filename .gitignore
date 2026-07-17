@@ -26,3 +26,4 @@ data/chainpilot.duckdb
 .DS_Store
 data/chainpilot.duckdb.bak-*
 /*.pdf
+/*.gif
