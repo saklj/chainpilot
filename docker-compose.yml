@@ -23,6 +23,9 @@ services:
       DUCKDB_PATH: /app/data/chainpilot.duckdb
     volumes:
       - ./data:/app/data
+      # The chat glossary is parsed from the data dictionary at runtime
+      # ("docs as the single source of truth"), so the API needs it read-only.
+      - ./docs:/app/docs:ro
     ports:
       - "8000:8000"
     healthcheck:
