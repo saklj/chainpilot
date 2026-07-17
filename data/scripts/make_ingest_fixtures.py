@@ -13,6 +13,8 @@ Five files under data/fixtures/ingest/ (all keys reference real seed data):
 6. 导入_可修复.xlsx       — 5 format-dirty but repairable rows (date variants,
                             thousand separators, full-width digits, lowercase
                             keys) plus 3 genuinely unfixable rows
+7. 邮件_演示批次.xlsx     — 6 clean rows on a dedicated PO-9300xx id range so
+                            the email demo never collides with other fixtures
 
 No randomness is used, so re-running reproduces identical content.
 """
@@ -97,6 +99,16 @@ def main() -> None:
         ["PO-920008", "PN-00001", "SUP-004", 250, "下周三"],  # 语义日期 → 不可修
     ]
     _write("导入_可修复.xlsx", TEMPLATE_HEADERS, repairable)
+
+    mail_demo = [
+        ["PO-930001", "PN-00001", "SUP-001", 700, date(2016, 8, 5)],
+        ["PO-930002", "PN-00002", "SUP-002", 1250, date(2016, 8, 12)],
+        ["PO-930003", "PN-00003", "SUP-003", 480, date(2016, 8, 19)],
+        ["PO-930004", "PN-00004", "SUP-004", 900, date(2016, 8, 26)],
+        ["PO-930005", "PN-00005", "SUP-001", 350, date(2016, 9, 2)],
+        ["PO-930006", "PN-00006", "SUP-002", 1600, date(2016, 9, 9)],
+    ]
+    _write("邮件_演示批次.xlsx", TEMPLATE_HEADERS, mail_demo)
 
     oversize = [
         [f"PO-95{index:05d}", "PN-00001", "SUP-001", 100, date(2016, 8, 1)]
