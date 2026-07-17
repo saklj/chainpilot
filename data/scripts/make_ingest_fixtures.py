@@ -10,6 +10,9 @@ Five files under data/fixtures/ingest/ (all keys reference real seed data):
                             material, unknown supplier, negative qty, bad date,
                             empty po_id
 5. 导入_超行数.xlsx       — 50,001 rows to trip the row-count limit
+6. 导入_可修复.xlsx       — 5 format-dirty but repairable rows (date variants,
+                            thousand separators, full-width digits, lowercase
+                            keys) plus 3 genuinely unfixable rows
 
 No randomness is used, so re-running reproduces identical content.
 """
@@ -82,6 +85,18 @@ def main() -> None:
         ["PO-910010", "PN-00003", "SUP-001", 940, date(2016, 8, 10)],  # 合法
     ]
     _write("导入_含坏行.xlsx", TEMPLATE_HEADERS, dirty)
+
+    repairable = [
+        ["PO-920001", "PN-00001", "SUP-001", "1,200", "2016/6/8"],  # 千分位+斜杠日期 → 可修
+        ["PO-920002", "PN-00002", "SUP-002", 500, "2016年7月1日"],  # 中文日期 → 可修
+        ["PO-920003", "pn-00003", "SUP-003", "800.0", "2016.7.15"],  # 小写料号+小数文本+点日期 → 可修
+        ["PO-920004", "PN-00004", "sup-004", "６００", date(2016, 7, 20)],  # 小写供应商+全角数字 → 可修
+        ["PO-920005", "PN-00005", "SUP-001", 400, "20160725"],  # 紧凑日期 → 可修
+        ["PO-920006", "PN-99999", "SUP-002", 300, date(2016, 8, 1)],  # 未知物料 → 不可修
+        ["PO-920007", "PN-00006", "SUP-003", -50, date(2016, 8, 5)],  # 负数量 → 不可修(业务问题)
+        ["PO-920008", "PN-00001", "SUP-004", 250, "下周三"],  # 语义日期 → 不可修
+    ]
+    _write("导入_可修复.xlsx", TEMPLATE_HEADERS, repairable)
 
     oversize = [
         [f"PO-95{index:05d}", "PN-00001", "SUP-001", 100, date(2016, 8, 1)]
