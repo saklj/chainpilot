@@ -8,7 +8,7 @@ import {
   RotateCcw,
   Upload,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -74,16 +74,19 @@ function UploadField({
   loading: boolean;
   onFile: (file: File) => void;
 }) {
-  // The native input is cleared after each pick (so re-picking the same file
-  // still fires change), which resets its built-in text — track the name here.
+  // The native file input is hidden: its built-in "未选择任何文件" text cannot be
+  // customized, and it gets cleared after each pick so re-picking the same file
+  // still fires change. A styled button + tracked filename replace it.
   const [fileName, setFileName] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   return (
-    <label className="block space-y-2 text-sm">
-      <span className="font-medium">{label}</span>
+    <div className="space-y-2 text-sm">
+      <span className="block font-medium">{label}</span>
       <Input
+        ref={inputRef}
         type="file"
         accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        disabled={loading}
+        className="hidden"
         onChange={(event) => {
           const file = event.target.files?.[0];
           if (file) {
@@ -93,10 +96,25 @@ function UploadField({
           event.target.value = "";
         }}
       />
-      <span className="block text-xs text-muted-foreground">
-        {fileName ? `已选择：${fileName}` : "仅支持 .xlsx，最大 2MB、5000 行。"}
-      </span>
-    </label>
+      <div className="flex items-center gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          disabled={loading}
+          onClick={() => inputRef.current?.click()}
+        >
+          <Upload aria-hidden="true" />
+          选择文件
+        </Button>
+        {fileName ? (
+          <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+            <FileSpreadsheet className="size-4 shrink-0" aria-hidden="true" />
+            {fileName}
+          </span>
+        ) : null}
+      </div>
+      <span className="block text-xs text-muted-foreground">仅支持 .xlsx，最大 2MB、5000 行。</span>
+    </div>
   );
 }
 
