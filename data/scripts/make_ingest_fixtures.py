@@ -9,7 +9,7 @@ Five files under data/fixtures/ingest/ (all keys reference real seed data):
                             in-file duplicate, existing po_id conflict, unknown
                             material, unknown supplier, negative qty, bad date,
                             empty po_id
-5. 导入_超行数.xlsx       — 5,001 rows to trip the row-count limit
+5. 导入_超行数.xlsx       — 50,001 rows to trip the row-count limit
 
 No randomness is used, so re-running reproduces identical content.
 """
@@ -84,8 +84,8 @@ def main() -> None:
     _write("导入_含坏行.xlsx", TEMPLATE_HEADERS, dirty)
 
     oversize = [
-        [f"PO-95{index:04d}", "PN-00001", "SUP-001", 100, date(2016, 8, 1)]
-        for index in range(1, 5002)
+        [f"PO-95{index:05d}", "PN-00001", "SUP-001", 100, date(2016, 8, 1)]
+        for index in range(1, 50002)
     ]
     _write("导入_超行数.xlsx", TEMPLATE_HEADERS, oversize)
 

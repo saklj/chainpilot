@@ -46,6 +46,11 @@ def db_copy(tmp_path: Path) -> Path:
         pytest.skip("real DuckDB fixture is unavailable")
     destination = tmp_path / "chainpilot.duckdb"
     shutil.copyfile(REAL_DB, destination)
+    # The real DB evolves as the user registers templates / imports batches;
+    # normalize the copy to "no ingest state" so assertions stay deterministic.
+    with duckdb.connect(str(destination)) as connection:
+        for table in ("ingest_batch_row", "ingest_batch", "ingest_template"):
+            connection.execute(f"DROP TABLE IF EXISTS {table}")
     return destination
 
 
@@ -300,7 +305,7 @@ def test_routes_full_two_step_flow_and_structured_errors(
             oversized = client.post(
                 "/api/ingest/template/preview",
                 files={
-                    "file": ("huge.xlsx", b"x" * (2 * 1024 * 1024 + 1), "application/octet-stream")
+                    "file": ("huge.xlsx", b"x" * (20 * 1024 * 1024 + 1), "application/octet-stream")
                 },
             )
             assert oversized.status_code == 413
@@ -311,17 +316,19 @@ def test_routes_full_two_step_flow_and_structured_errors(
         app.dependency_overrides.pop(get_mapping_suggester, None)
 
 
-def test_preview_rejects_more_than_5000_rows(db_copy: Path) -> None:
+def test_preview_rejects_rows_beyond_limit(db_copy: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     pytest.importorskip("multipart")
     from app.main import app
     from app.routers.ingest import get_mapping_suggester
 
+    # Shrink the limit so the trip-wire is exercised without building a 50k-row file.
+    monkeypatch.setattr("ingest.workbook.MAX_DATA_ROWS", 50)
     dependency = _override_connection(db_copy)
     app.dependency_overrides[get_db] = dependency
     app.dependency_overrides[get_read_write_db] = dependency
     app.dependency_overrides[get_mapping_suggester] = lambda: None
     try:
-        payload = workbook_bytes(["po_id"], [[f"PO-{index}"] for index in range(5001)])
+        payload = workbook_bytes(["po_id"], [[f"PO-{index}"] for index in range(51)])
         with TestClient(app) as client:
             response = client.post(
                 "/api/ingest/template/preview",

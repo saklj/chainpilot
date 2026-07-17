@@ -113,7 +113,9 @@ function UploadField({
           </span>
         ) : null}
       </div>
-      <span className="block text-xs text-muted-foreground">仅支持 .xlsx，最大 2MB、5000 行。</span>
+      <span className="block text-xs text-muted-foreground">
+        仅支持 .xlsx，最大 20MB、50,000 行。
+      </span>
     </div>
   );
 }
@@ -403,7 +405,12 @@ export function IngestWorkspace() {
 
                   {report.errors.length > 0 && (
                     <div className="space-y-2">
-                      <h3 className="text-sm font-semibold text-destructive">错误明细</h3>
+                      <h3 className="text-sm font-semibold text-destructive">
+                        错误明细
+                        {report.error_count > report.errors.length
+                          ? `（共 ${report.error_count} 条，仅显示前 ${report.errors.length} 条）`
+                          : null}
+                      </h3>
                       <div className="max-h-80 overflow-auto rounded-lg border border-destructive/25">
                         <Table>
                           <TableHeader>

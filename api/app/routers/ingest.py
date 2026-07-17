@@ -42,6 +42,7 @@ router = APIRouter(prefix="/api/ingest", tags=["ingest"])
 ReadDb = Annotated[duckdb.DuckDBPyConnection, Depends(get_db)]
 WriteDb = Annotated[duckdb.DuckDBPyConnection, Depends(get_read_write_db)]
 TOKEN_TTL_SECONDS = 15 * 60
+MAX_ERRORS_RETURNED = 500
 _validation_tokens: dict[str, tuple[float, ValidationReport]] = {}
 _token_lock = threading.Lock()
 
@@ -208,7 +209,9 @@ async def validate_upload(
         "total_rows": report.total_rows,
         "valid_count": report.valid_count,
         "error_count": report.error_count,
-        "errors": [asdict(error) for error in report.errors],
+        # Cap the detail list so a mostly-bad 50k-row file cannot blow up the
+        # response; error_count still reports the true total.
+        "errors": [asdict(error) for error in report.errors[:MAX_ERRORS_RETURNED]],
         "preview": [
             {**asdict(row), "eta_date": row.eta_date.isoformat()} for row in report.valid_rows[:20]
         ],

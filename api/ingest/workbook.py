@@ -10,13 +10,15 @@ from openpyxl.utils.exceptions import InvalidFileException
 
 from ingest.errors import IngestError
 
-MAX_FILE_BYTES = 2 * 1024 * 1024
-MAX_DATA_ROWS = 5000
+# Sized for real-world exports (tens of thousands of rows is normal); the caps
+# exist to bound server memory, not to describe typical files.
+MAX_FILE_BYTES = 20 * 1024 * 1024
+MAX_DATA_ROWS = 50_000
 
 
 def read_first_sheet(file_bytes: bytes) -> tuple[list[str], list[tuple[object, ...]]]:
     if len(file_bytes) > MAX_FILE_BYTES:
-        raise IngestError("file_too_large", "Excel 文件不能超过 2MB", status_code=413)
+        raise IngestError("file_too_large", "Excel 文件不能超过 20MB", status_code=413)
     if not file_bytes:
         raise IngestError("invalid_xlsx", "Excel 文件为空")
     try:
