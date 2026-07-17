@@ -74,6 +74,9 @@ function UploadField({
   loading: boolean;
   onFile: (file: File) => void;
 }) {
+  // The native input is cleared after each pick (so re-picking the same file
+  // still fires change), which resets its built-in text — track the name here.
+  const [fileName, setFileName] = useState<string | null>(null);
   return (
     <label className="block space-y-2 text-sm">
       <span className="font-medium">{label}</span>
@@ -83,11 +86,16 @@ function UploadField({
         disabled={loading}
         onChange={(event) => {
           const file = event.target.files?.[0];
-          if (file) onFile(file);
+          if (file) {
+            setFileName(file.name);
+            onFile(file);
+          }
           event.target.value = "";
         }}
       />
-      <span className="block text-xs text-muted-foreground">仅支持 .xlsx，最大 2MB、5000 行。</span>
+      <span className="block text-xs text-muted-foreground">
+        {fileName ? `已选择：${fileName}` : "仅支持 .xlsx，最大 2MB、5000 行。"}
+      </span>
     </label>
   );
 }
