@@ -3,6 +3,12 @@ import { z } from "zod";
 import {
   ChatResultSchema,
   ForecastMetricSchema,
+  IngestBatchSchema,
+  IngestImportResultSchema,
+  IngestRollbackResultSchema,
+  IngestTemplatePreviewSchema,
+  IngestTemplateStateSchema,
+  IngestValidationReportSchema,
   MaterialRiskDetailSchema,
   MaterialRiskSchema,
   ReportMetaSchema,
@@ -14,6 +20,12 @@ import {
   WhatIfSupplierSchema,
   type ChatResult,
   type ForecastMetric,
+  type IngestBatch,
+  type IngestImportResult,
+  type IngestRollbackResult,
+  type IngestTemplatePreview,
+  type IngestTemplateState,
+  type IngestValidationReport,
   type MaterialRisk,
   type MaterialRiskDetail,
   type Report,
@@ -41,13 +53,15 @@ export class ApiError extends Error {
 }
 
 async function request<T>(path: string, schema: z.ZodType<T>, init?: RequestInit): Promise<T> {
+  const headers = new Headers(init?.headers);
+  const isFormData = typeof FormData !== "undefined" && init?.body instanceof FormData;
+  if (!isFormData && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
   const response = await fetch(`${API_BASE}${path}`, {
     ...init,
     cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-      ...init?.headers,
-    },
+    headers,
   });
 
   const payload: unknown = await response.json().catch(() => null);
@@ -146,4 +160,53 @@ export function simulateSupplierOutage(
     method: "POST",
     body: JSON.stringify({ supplier_id: supplierId, days }),
   });
+}
+
+export function getIngestTemplate(): Promise<IngestTemplateState> {
+  return request("/api/ingest/template", IngestTemplateStateSchema);
+}
+
+export function previewIngestTemplate(file: File): Promise<IngestTemplatePreview> {
+  const body = new FormData();
+  body.set("file", file);
+  return request("/api/ingest/template/preview", IngestTemplatePreviewSchema, {
+    method: "POST",
+    body,
+  });
+}
+
+export function saveIngestTemplate(
+  mapping: Record<string, string>,
+): Promise<IngestTemplateState> {
+  return request("/api/ingest/template", IngestTemplateStateSchema, {
+    method: "POST",
+    body: JSON.stringify({ mapping }),
+  });
+}
+
+export function validateIngestFile(file: File): Promise<IngestValidationReport> {
+  const body = new FormData();
+  body.set("file", file);
+  return request("/api/ingest/validate", IngestValidationReportSchema, {
+    method: "POST",
+    body,
+  });
+}
+
+export function confirmIngest(validationToken: string): Promise<IngestImportResult> {
+  return request("/api/ingest/confirm", IngestImportResultSchema, {
+    method: "POST",
+    body: JSON.stringify({ validation_token: validationToken }),
+  });
+}
+
+export function rollbackIngest(batchId: string): Promise<IngestRollbackResult> {
+  return request("/api/ingest/rollback", IngestRollbackResultSchema, {
+    method: "POST",
+    body: JSON.stringify({ batch_id: batchId }),
+  });
+}
+
+export function getIngestBatches(): Promise<IngestBatch[]> {
+  return request("/api/ingest/batches", z.array(IngestBatchSchema));
 }

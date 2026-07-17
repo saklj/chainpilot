@@ -310,3 +310,78 @@ export const HTTPValidationErrorSchema = z.object({
   detail: z.array(ValidationErrorSchema).optional(),
 });
 export type HTTPValidationError = z.infer<typeof HTTPValidationErrorSchema>;
+
+export const IngestTargetColumnSchema = z.enum([
+  "po_id",
+  "material_pn",
+  "supplier_id",
+  "qty",
+  "eta_date",
+]);
+export type IngestTargetColumn = z.infer<typeof IngestTargetColumnSchema>;
+
+export const IngestTemplatePreviewSchema = z.object({
+  source_columns: z.array(z.string()),
+  suggested_mapping: z.record(IngestTargetColumnSchema, z.string().nullable()),
+  suggestion_sources: z.record(
+    IngestTargetColumnSchema,
+    z.enum(["deterministic", "llm"]).nullable(),
+  ),
+});
+export type IngestTemplatePreview = z.infer<typeof IngestTemplatePreviewSchema>;
+
+export const IngestTemplateStateSchema = z.object({
+  exists: z.boolean(),
+  target_table: z.literal("open_po"),
+  mapping: z.record(z.string(), z.string()).nullable().optional(),
+  created_at: z.string().nullable().optional(),
+});
+export type IngestTemplateState = z.infer<typeof IngestTemplateStateSchema>;
+
+export const IngestValidatedRowSchema = z.object({
+  po_id: z.string(),
+  material_pn: z.string(),
+  supplier_id: z.string(),
+  qty: z.number().int(),
+  eta_date: z.string(),
+});
+export type IngestValidatedRow = z.infer<typeof IngestValidatedRowSchema>;
+
+export const IngestValidationErrorSchema = z.object({
+  row: z.number().int(),
+  field: z.string(),
+  code: z.string(),
+  reason: z.string(),
+});
+export type IngestValidationError = z.infer<typeof IngestValidationErrorSchema>;
+
+export const IngestValidationReportSchema = z.object({
+  validation_token: z.string(),
+  filename: z.string(),
+  total_rows: z.number().int(),
+  valid_count: z.number().int(),
+  error_count: z.number().int(),
+  errors: z.array(IngestValidationErrorSchema),
+  preview: z.array(IngestValidatedRowSchema),
+});
+export type IngestValidationReport = z.infer<typeof IngestValidationReportSchema>;
+
+export const IngestImportResultSchema = z.object({
+  batch_id: z.string(),
+  row_count: z.number().int(),
+});
+export type IngestImportResult = z.infer<typeof IngestImportResultSchema>;
+
+export const IngestRollbackResultSchema = z.object({
+  batch_id: z.string(),
+  deleted_count: z.number().int(),
+});
+export type IngestRollbackResult = z.infer<typeof IngestRollbackResultSchema>;
+
+export const IngestBatchSchema = z.object({
+  batch_id: z.string(),
+  filename: z.string(),
+  row_count: z.number().int(),
+  created_at: z.string(),
+});
+export type IngestBatch = z.infer<typeof IngestBatchSchema>;

@@ -23,6 +23,15 @@ def get_db() -> Iterator[duckdb.DuckDBPyConnection]:
         connection.close()
 
 
+def get_read_write_db() -> Iterator[duckdb.DuckDBPyConnection]:
+    """Yield a request-scoped writable connection for explicit mutation routes."""
+    connection = duckdb.connect(str(database_path()))
+    try:
+        yield connection
+    finally:
+        connection.close()
+
+
 def get_llm() -> DeepSeekClient:
     """Build the injectable LLM client used by the chat route."""
     return DeepSeekClient()

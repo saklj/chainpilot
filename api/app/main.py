@@ -3,7 +3,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import chat, diagnose, forecast, report, risk, whatif
+from app.routers import chat, diagnose, forecast, ingest, report, risk, whatif
 
 app = FastAPI(title="ChainPilot API", version="0.1.0")
 
@@ -21,6 +21,7 @@ app.include_router(chat.router)
 app.include_router(report.router)
 app.include_router(whatif.router)
 app.include_router(diagnose.router)
+app.include_router(ingest.router)
 
 
 @app.get("/api/health")

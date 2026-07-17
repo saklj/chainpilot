@@ -9,4 +9,5 @@ openai==2.45.0
 statsforecast==2.0.3
 lightgbm==4.6.0
 openpyxl==3.1.5
+python-multipart==0.0.22
 fastembed==0.7.3

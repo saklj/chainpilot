@@ -3,6 +3,7 @@
 import {
   BotMessageSquare,
   ChartNoAxesCombined,
+  FileUp,
   FileText,
   FlaskConical,
   Orbit,
@@ -28,6 +29,7 @@ const navigation = [
   { href: "/chat", label: "Chat 问数", icon: BotMessageSquare },
   { href: "/report", label: "周报", icon: FileText },
   { href: "/whatif", label: "What-if 模拟", icon: FlaskConical },
+  { href: "/ingest", label: "数据接入", icon: FileUp },
 ] as const;
 
 export function AppSidebar() {

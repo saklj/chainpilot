@@ -205,3 +205,70 @@ class WhatIfResponse(BaseModel):
 
 class DiagnosisRequest(BaseModel):
     material_pn: str = Field(min_length=1, max_length=50)
+
+
+class IngestTemplatePreview(BaseModel):
+    source_columns: list[str]
+    suggested_mapping: dict[str, str | None]
+    suggestion_sources: dict[str, Literal["deterministic", "llm"] | None]
+
+
+class IngestTemplateSaveRequest(BaseModel):
+    mapping: dict[str, str]
+
+
+class IngestTemplateState(BaseModel):
+    exists: bool
+    target_table: Literal["open_po"] = "open_po"
+    mapping: dict[str, str] | None = None
+    created_at: str | None = None
+
+
+class IngestValidatedRow(BaseModel):
+    po_id: str
+    material_pn: str
+    supplier_id: str
+    qty: int
+    eta_date: str
+
+
+class IngestValidationError(BaseModel):
+    row: int
+    field: str
+    code: str
+    reason: str
+
+
+class IngestValidationReport(BaseModel):
+    validation_token: str
+    filename: str
+    total_rows: int
+    valid_count: int
+    error_count: int
+    errors: list[IngestValidationError]
+    preview: list[IngestValidatedRow]
+
+
+class IngestConfirmRequest(BaseModel):
+    validation_token: str = Field(min_length=1, max_length=200)
+
+
+class IngestImportResult(BaseModel):
+    batch_id: str
+    row_count: int
+
+
+class IngestRollbackRequest(BaseModel):
+    batch_id: str = Field(min_length=1, max_length=100)
+
+
+class IngestRollbackResult(BaseModel):
+    batch_id: str
+    deleted_count: int
+
+
+class IngestBatch(BaseModel):
+    batch_id: str
+    filename: str
+    row_count: int
+    created_at: str
