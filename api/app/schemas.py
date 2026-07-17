@@ -328,3 +328,16 @@ class IngestMailConfig(BaseModel):
     scheduled_poll_enabled: bool
     poll_seconds: int
     allowed_senders_configured: bool
+
+
+class IngestRepair(BaseModel):
+    row: int
+    field: str
+    original_value: Any
+    new_value: Any
+    rule_name: Literal["date_format", "qty_format", "key_normalize"]
+
+
+class IngestRepairResult(BaseModel):
+    repairs: list[IngestRepair]
+    report: IngestValidationReport

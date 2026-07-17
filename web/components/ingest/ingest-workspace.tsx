@@ -7,11 +7,13 @@ import {
   LoaderCircle,
   RotateCcw,
   Upload,
+  Wrench,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { MailInbox } from "@/components/ingest/mail-inbox";
+import { RepairDiff } from "@/components/ingest/repair-diff";
 import { ValidationReportView } from "@/components/ingest/validation-report-view";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,6 +39,7 @@ import {
   getIngestBatches,
   getIngestTemplate,
   previewIngestTemplate,
+  repairIngestFile,
   rollbackIngest,
   saveIngestTemplate,
   validateIngestFile,
@@ -44,6 +47,7 @@ import {
 import type {
   IngestBatch,
   IngestImportResult,
+  IngestRepairResult,
   IngestTargetColumn,
   IngestTemplatePreview,
   IngestTemplateState,
@@ -134,6 +138,8 @@ export function IngestWorkspace() {
     eta_date: "",
   });
   const [report, setReport] = useState<IngestValidationReport | null>(null);
+  const [currentFile, setCurrentFile] = useState<File | null>(null);
+  const [repairResult, setRepairResult] = useState<IngestRepairResult | null>(null);
   const [reRegistering, setReRegistering] = useState(false);
   const [importResult, setImportResult] = useState<IngestImportResult | null>(null);
   const [loading, setLoading] = useState(true);
@@ -212,8 +218,25 @@ export function IngestWorkspace() {
     setError(null);
     setImportResult(null);
     setReport(null);
+    setCurrentFile(file);
+    setRepairResult(null);
     try {
       setReport(await validateIngestFile(file));
+    } catch (requestError) {
+      setError(errorMessage(requestError));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function repairUpload() {
+    if (!currentFile || !report || busy) return;
+    setBusy("repair");
+    setError(null);
+    try {
+      const repaired = await repairIngestFile(currentFile);
+      setRepairResult(repaired);
+      setReport(repaired.report);
     } catch (requestError) {
       setError(errorMessage(requestError));
     } finally {
@@ -229,6 +252,8 @@ export function IngestWorkspace() {
       const result = await confirmIngest(report.validation_token);
       setImportResult(result);
       setReport(null);
+      setCurrentFile(null);
+      setRepairResult(null);
       await refreshBatches();
     } catch (requestError) {
       setError(errorMessage(requestError));
@@ -404,6 +429,8 @@ export function IngestWorkspace() {
                 setReRegistering(true);
                 setTemplatePreview(null);
                 setReport(null);
+                setCurrentFile(null);
+                setRepairResult(null);
                 setImportResult(null);
                 setError(null);
               }}
@@ -432,23 +459,50 @@ export function IngestWorkspace() {
                 </p>
               )}
               {report && (
-                <ValidationReportView
-                  report={report}
-                  actions={
-                    <div className="flex flex-wrap items-center gap-3">
-                    <Button
-                      onClick={confirmUpload}
-                      disabled={report.valid_count === 0 || busy === "confirm"}
-                    >
-                      {busy === "confirm" && <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />}
-                      确认导入 {report.valid_count} 行
-                    </Button>
-                    <span className="text-xs text-muted-foreground">
-                      错误行不会导入；点击确认前数据库保持不变。
-                    </span>
-                    </div>
-                  }
-                />
+                <div className="space-y-5">
+                  {repairResult && (
+                    <RepairDiff
+                      repairs={repairResult.repairs}
+                      remainingErrors={report.error_count}
+                    />
+                  )}
+                  <ValidationReportView
+                    report={report}
+                    errorAction={
+                      !repairResult && currentFile ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={repairUpload}
+                          disabled={busy === "repair"}
+                        >
+                          {busy === "repair" ? (
+                            <LoaderCircle className="size-3.5 animate-spin" aria-hidden="true" />
+                          ) : (
+                            <Wrench className="size-3.5" aria-hidden="true" />
+                          )}
+                          尝试自动修复（仅修格式，不猜内容）
+                        </Button>
+                      ) : undefined
+                    }
+                    actions={
+                      <div className="flex flex-wrap items-center gap-3">
+                        <Button
+                          onClick={confirmUpload}
+                          disabled={report.valid_count === 0 || busy === "confirm"}
+                        >
+                          {busy === "confirm" && (
+                            <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
+                          )}
+                          确认导入 {report.valid_count} 行
+                        </Button>
+                        <span className="text-xs text-muted-foreground">
+                          错误行不会导入；点击确认前数据库保持不变。
+                        </span>
+                      </div>
+                    }
+                  />
+                </div>
               )}
             </CardContent>
           </Card>

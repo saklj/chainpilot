@@ -456,3 +456,18 @@ export const IngestMailConfigSchema = z.object({
   allowed_senders_configured: z.boolean(),
 });
 export type IngestMailConfig = z.infer<typeof IngestMailConfigSchema>;
+
+export const IngestRepairSchema = z.object({
+  row: z.number().int(),
+  field: z.string(),
+  original_value: z.unknown(),
+  new_value: z.unknown(),
+  rule_name: z.enum(["date_format", "qty_format", "key_normalize"]),
+});
+export type IngestRepair = z.infer<typeof IngestRepairSchema>;
+
+export const IngestRepairResultSchema = z.object({
+  repairs: z.array(IngestRepairSchema),
+  report: IngestValidationReportSchema,
+});
+export type IngestRepairResult = z.infer<typeof IngestRepairResultSchema>;

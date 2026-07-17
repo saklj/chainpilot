@@ -21,9 +21,11 @@ export type ValidationReportViewData = {
 export function ValidationReportView({
   report,
   actions,
+  errorAction,
 }: {
   report: ValidationReportViewData;
   actions?: ReactNode;
+  errorAction?: ReactNode;
 }) {
   return (
     <div className="space-y-5">
@@ -42,12 +44,15 @@ export function ValidationReportView({
 
       {report.errors.length > 0 && (
         <div className="space-y-2">
-          <h3 className="text-sm font-semibold text-destructive">
-            错误明细
-            {report.error_count > report.errors.length
-              ? `（共 ${report.error_count} 条，仅显示前 ${report.errors.length} 条）`
-              : null}
-          </h3>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h3 className="text-sm font-semibold text-destructive">
+              错误明细
+              {report.error_count > report.errors.length
+                ? `（共 ${report.error_count} 条，仅显示前 ${report.errors.length} 条）`
+                : null}
+            </h3>
+            {errorAction}
+          </div>
           <div className="max-h-80 overflow-auto rounded-lg border border-destructive/25">
             <Table>
               <TableHeader>

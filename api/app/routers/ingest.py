@@ -24,6 +24,7 @@ from app.schemas import (
     IngestMailItemDetail,
     IngestMailPollResult,
     IngestMailRejectResult,
+    IngestRepairResult,
     IngestRollbackRequest,
     IngestRollbackResult,
     IngestTemplatePreview,
@@ -48,6 +49,7 @@ from ingest.mail import (
     validate_mail_item,
 )
 from ingest.pipeline import import_rows, rollback_batch, validate_file
+from ingest.repair import repair_file
 from ingest.templates import (
     MappingSuggester,
     deterministic_mapping,
@@ -399,4 +401,30 @@ def mail_config(source: MailSource, allowed_senders: AllowedMailSenders) -> dict
         "scheduled_poll_enabled": poll_seconds > 0,
         "poll_seconds": poll_seconds,
         "allowed_senders_configured": bool(allowed_senders),
+    }
+
+
+@router.post("/repair", response_model=IngestRepairResult)
+async def repair_upload(file: Annotated[UploadFile, File()], connection: ReadDb) -> dict[str, Any]:
+    filename, file_bytes = await _xlsx_bytes(file)
+    try:
+        outcome = repair_file(connection, file_bytes, filename)
+    except IngestError as error:
+        raise _http_error(error) from error
+    report = outcome.report
+    token = _store_validation(report)
+    return {
+        "repairs": [asdict(repair) for repair in outcome.repairs],
+        "report": {
+            "validation_token": token,
+            "filename": filename,
+            "total_rows": report.total_rows,
+            "valid_count": report.valid_count,
+            "error_count": report.error_count,
+            "errors": [asdict(error) for error in report.errors[:MAX_ERRORS_RETURNED]],
+            "preview": [
+                {**asdict(row), "eta_date": row.eta_date.isoformat()}
+                for row in report.valid_rows[:20]
+            ],
+        },
     }

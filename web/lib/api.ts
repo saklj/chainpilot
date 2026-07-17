@@ -12,6 +12,7 @@ import {
   IngestMailPollResultSchema,
   IngestMailRejectResultSchema,
   IngestRollbackResultSchema,
+  IngestRepairResultSchema,
   IngestTemplatePreviewSchema,
   IngestTemplateStateSchema,
   IngestValidationReportSchema,
@@ -34,6 +35,7 @@ import {
   type IngestMailItemDetail,
   type IngestMailPollResult,
   type IngestRollbackResult,
+  type IngestRepairResult,
   type IngestTemplatePreview,
   type IngestTemplateState,
   type IngestValidationReport,
@@ -255,4 +257,13 @@ export function rejectIngestMailItem(itemId: string): Promise<{ item_id: string;
 
 export function getIngestMailConfig(): Promise<IngestMailConfig> {
   return request("/api/ingest/mail/config", IngestMailConfigSchema);
+}
+
+export function repairIngestFile(file: File): Promise<IngestRepairResult> {
+  const body = new FormData();
+  body.set("file", file);
+  return request("/api/ingest/repair", IngestRepairResultSchema, {
+    method: "POST",
+    body,
+  });
 }
