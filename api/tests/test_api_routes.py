@@ -12,7 +12,7 @@ from fastapi.testclient import TestClient
 from openpyxl import load_workbook
 
 from agent.llm import LLMResult, TokenUsage
-from app.deps import get_llm
+from app.deps import get_few_shots_provider, get_llm
 from app.main import app
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -36,6 +36,9 @@ class SequenceLLM:
 
 @pytest.fixture
 def client() -> TestClient:
+    # Contract tests must stay deterministic and offline: never let the real RAG
+    # provider load the BGE model (the real DB now ships a qa_embedding index).
+    app.dependency_overrides[get_few_shots_provider] = lambda: (lambda question: None)
     with TestClient(app) as test_client:
         yield test_client
     app.dependency_overrides.clear()
