@@ -272,3 +272,59 @@ class IngestBatch(BaseModel):
     filename: str
     row_count: int
     created_at: str
+
+
+class IngestMailPollResult(BaseModel):
+    new_items: int
+    blocked: int
+    duplicates: int
+    invalid_files: int
+
+
+class IngestMailItem(BaseModel):
+    item_id: str
+    message_uid: str
+    sender: str
+    subject: str
+    filename: str
+    attachment_sha256: str
+    received_at: str
+    status: Literal["pending_review", "blocked", "invalid_file", "confirmed", "rejected"]
+    valid_count: int
+    error_count: int
+    batch_id: str | None
+    error_code: str | None
+    error_message: str | None
+    created_at: str
+
+
+class IngestValidationSnapshot(BaseModel):
+    filename: str
+    total_rows: int
+    valid_count: int
+    error_count: int
+    errors_truncated: bool = False
+    errors: list[IngestValidationError]
+    preview: list[IngestValidatedRow]
+
+
+class IngestMailItemDetail(IngestMailItem):
+    fresh_report: IngestValidationSnapshot | None
+
+
+class IngestMailConfirmResult(BaseModel):
+    batch_id: str
+    row_count: int
+    fresh_report: IngestValidationSnapshot
+
+
+class IngestMailRejectResult(BaseModel):
+    item_id: str
+    status: Literal["rejected"]
+
+
+class IngestMailConfig(BaseModel):
+    source: Literal["imap", "directory"]
+    scheduled_poll_enabled: bool
+    poll_seconds: int
+    allowed_senders_configured: bool

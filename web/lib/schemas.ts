@@ -385,3 +385,74 @@ export const IngestBatchSchema = z.object({
   created_at: z.string(),
 });
 export type IngestBatch = z.infer<typeof IngestBatchSchema>;
+
+export const IngestMailStatusSchema = z.enum([
+  "pending_review",
+  "blocked",
+  "invalid_file",
+  "confirmed",
+  "rejected",
+]);
+export type IngestMailStatus = z.infer<typeof IngestMailStatusSchema>;
+
+export const IngestMailPollResultSchema = z.object({
+  new_items: z.number().int(),
+  blocked: z.number().int(),
+  duplicates: z.number().int(),
+  invalid_files: z.number().int(),
+});
+export type IngestMailPollResult = z.infer<typeof IngestMailPollResultSchema>;
+
+export const IngestMailItemSchema = z.object({
+  item_id: z.string(),
+  message_uid: z.string(),
+  sender: z.string(),
+  subject: z.string(),
+  filename: z.string(),
+  attachment_sha256: z.string(),
+  received_at: z.string(),
+  status: IngestMailStatusSchema,
+  valid_count: z.number().int(),
+  error_count: z.number().int(),
+  batch_id: z.string().nullable(),
+  error_code: z.string().nullable(),
+  error_message: z.string().nullable(),
+  created_at: z.string(),
+});
+export type IngestMailItem = z.infer<typeof IngestMailItemSchema>;
+
+export const IngestValidationSnapshotSchema = z.object({
+  filename: z.string(),
+  total_rows: z.number().int(),
+  valid_count: z.number().int(),
+  error_count: z.number().int(),
+  errors_truncated: z.boolean(),
+  errors: z.array(IngestValidationErrorSchema),
+  preview: z.array(IngestValidatedRowSchema),
+});
+export type IngestValidationSnapshot = z.infer<typeof IngestValidationSnapshotSchema>;
+
+export const IngestMailItemDetailSchema = IngestMailItemSchema.extend({
+  fresh_report: IngestValidationSnapshotSchema.nullable(),
+});
+export type IngestMailItemDetail = z.infer<typeof IngestMailItemDetailSchema>;
+
+export const IngestMailConfirmResultSchema = z.object({
+  batch_id: z.string(),
+  row_count: z.number().int(),
+  fresh_report: IngestValidationSnapshotSchema,
+});
+export type IngestMailConfirmResult = z.infer<typeof IngestMailConfirmResultSchema>;
+
+export const IngestMailRejectResultSchema = z.object({
+  item_id: z.string(),
+  status: z.literal("rejected"),
+});
+
+export const IngestMailConfigSchema = z.object({
+  source: z.enum(["imap", "directory"]),
+  scheduled_poll_enabled: z.boolean(),
+  poll_seconds: z.number().int(),
+  allowed_senders_configured: z.boolean(),
+});
+export type IngestMailConfig = z.infer<typeof IngestMailConfigSchema>;

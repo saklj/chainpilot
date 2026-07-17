@@ -5,6 +5,12 @@ import {
   ForecastMetricSchema,
   IngestBatchSchema,
   IngestImportResultSchema,
+  IngestMailConfigSchema,
+  IngestMailConfirmResultSchema,
+  IngestMailItemDetailSchema,
+  IngestMailItemSchema,
+  IngestMailPollResultSchema,
+  IngestMailRejectResultSchema,
   IngestRollbackResultSchema,
   IngestTemplatePreviewSchema,
   IngestTemplateStateSchema,
@@ -22,6 +28,11 @@ import {
   type ForecastMetric,
   type IngestBatch,
   type IngestImportResult,
+  type IngestMailConfig,
+  type IngestMailConfirmResult,
+  type IngestMailItem,
+  type IngestMailItemDetail,
+  type IngestMailPollResult,
   type IngestRollbackResult,
   type IngestTemplatePreview,
   type IngestTemplateState,
@@ -209,4 +220,39 @@ export function rollbackIngest(batchId: string): Promise<IngestRollbackResult> {
 
 export function getIngestBatches(): Promise<IngestBatch[]> {
   return request("/api/ingest/batches", z.array(IngestBatchSchema));
+}
+
+export function pollIngestMail(): Promise<IngestMailPollResult> {
+  return request("/api/ingest/mail/poll", IngestMailPollResultSchema, { method: "POST" });
+}
+
+export function getIngestMailItems(): Promise<IngestMailItem[]> {
+  return request("/api/ingest/mail/items", z.array(IngestMailItemSchema));
+}
+
+export function getIngestMailItem(itemId: string): Promise<IngestMailItemDetail> {
+  return request(
+    `/api/ingest/mail/items/${encodeURIComponent(itemId)}`,
+    IngestMailItemDetailSchema,
+  );
+}
+
+export function confirmIngestMailItem(itemId: string): Promise<IngestMailConfirmResult> {
+  return request(
+    `/api/ingest/mail/items/${encodeURIComponent(itemId)}/confirm`,
+    IngestMailConfirmResultSchema,
+    { method: "POST" },
+  );
+}
+
+export function rejectIngestMailItem(itemId: string): Promise<{ item_id: string; status: "rejected" }> {
+  return request(
+    `/api/ingest/mail/items/${encodeURIComponent(itemId)}/reject`,
+    IngestMailRejectResultSchema,
+    { method: "POST" },
+  );
+}
+
+export function getIngestMailConfig(): Promise<IngestMailConfig> {
+  return request("/api/ingest/mail/config", IngestMailConfigSchema);
 }

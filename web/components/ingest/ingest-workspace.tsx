@@ -11,6 +11,8 @@ import {
 import { useEffect, useRef, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
+import { MailInbox } from "@/components/ingest/mail-inbox";
+import { ValidationReportView } from "@/components/ingest/validation-report-view";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -430,78 +432,10 @@ export function IngestWorkspace() {
                 </p>
               )}
               {report && (
-                <div className="space-y-5">
-                  <div className="grid gap-3 sm:grid-cols-3">
-                    {[
-                      ["总行数", report.total_rows],
-                      ["合法行", report.valid_count],
-                      ["错误项", report.error_count],
-                    ].map(([label, value]) => (
-                      <div className="rounded-lg border border-border p-4" key={label}>
-                        <p className="text-xs text-muted-foreground">{label}</p>
-                        <p className="mt-1 text-2xl font-semibold tabular-nums">{value}</p>
-                      </div>
-                    ))}
-                  </div>
-
-                  {report.errors.length > 0 && (
-                    <div className="space-y-2">
-                      <h3 className="text-sm font-semibold text-destructive">
-                        错误明细
-                        {report.error_count > report.errors.length
-                          ? `（共 ${report.error_count} 条，仅显示前 ${report.errors.length} 条）`
-                          : null}
-                      </h3>
-                      <div className="max-h-80 overflow-auto rounded-lg border border-destructive/25">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Excel 行号</TableHead>
-                              <TableHead>字段</TableHead>
-                              <TableHead>原因</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {report.errors.map((item, index) => (
-                              <TableRow className="bg-destructive/5" key={`${item.row}-${item.field}-${index}`}>
-                                <TableCell className="tabular-nums">{item.row}</TableCell>
-                                <TableCell className="font-mono text-xs">{item.field}</TableCell>
-                                <TableCell className="text-destructive">{item.reason}</TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </div>
-                    </div>
-                  )}
-
-                  {report.preview.length > 0 && (
-                    <div className="space-y-2">
-                      <h3 className="text-sm font-semibold">合法行预览（最多 20 行）</h3>
-                      <div className="overflow-x-auto rounded-lg border border-border">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              {TARGETS.map(({ key }) => <TableHead key={key}>{key}</TableHead>)}
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {report.preview.map((row) => (
-                              <TableRow key={row.po_id}>
-                                <TableCell className="font-mono text-xs">{row.po_id}</TableCell>
-                                <TableCell className="font-mono text-xs">{row.material_pn}</TableCell>
-                                <TableCell className="font-mono text-xs">{row.supplier_id}</TableCell>
-                                <TableCell className="tabular-nums">{row.qty}</TableCell>
-                                <TableCell>{row.eta_date}</TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex flex-wrap items-center gap-3 border-t border-border pt-4">
+                <ValidationReportView
+                  report={report}
+                  actions={
+                    <div className="flex flex-wrap items-center gap-3">
                     <Button
                       onClick={confirmUpload}
                       disabled={report.valid_count === 0 || busy === "confirm"}
@@ -512,8 +446,9 @@ export function IngestWorkspace() {
                     <span className="text-xs text-muted-foreground">
                       错误行不会导入；点击确认前数据库保持不变。
                     </span>
-                  </div>
-                </div>
+                    </div>
+                  }
+                />
               )}
             </CardContent>
           </Card>
@@ -545,6 +480,8 @@ export function IngestWorkspace() {
               </CardContent>
             </Card>
           )}
+
+          <MailInbox onBatchChanged={refreshBatches} />
 
           <Card className="border border-border bg-card ring-0">
             <CardHeader><CardTitle className="text-base">历史导入批次</CardTitle></CardHeader>

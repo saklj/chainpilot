@@ -18,6 +18,12 @@ from app.schemas import (
     IngestBatch,
     IngestConfirmRequest,
     IngestImportResult,
+    IngestMailConfig,
+    IngestMailConfirmResult,
+    IngestMailItem,
+    IngestMailItemDetail,
+    IngestMailPollResult,
+    IngestMailRejectResult,
     IngestRollbackRequest,
     IngestRollbackResult,
     IngestTemplatePreview,
@@ -28,6 +34,19 @@ from app.schemas import (
 from ingest.database import TARGET_COLUMNS, table_exists
 from ingest.errors import IngestError
 from ingest.models import ValidationReport
+from ingest.mail import (
+    EmailSource,
+    ImapEmailSource,
+    allowed_senders_from_env,
+    confirm_mail_item,
+    email_source_from_env,
+    get_mail_item,
+    list_mail_items,
+    mail_poll_seconds_from_env,
+    poll_mailbox,
+    reject_mail_item,
+    validate_mail_item,
+)
 from ingest.pipeline import import_rows, rollback_batch, validate_file
 from ingest.templates import (
     MappingSuggester,
@@ -259,3 +278,125 @@ def batches(connection: ReadDb) -> list[dict[str, Any]]:
         }
         for row in rows
     ]
+
+
+def get_email_source() -> EmailSource:
+    return email_source_from_env()
+
+
+def get_allowed_mail_senders() -> set[str]:
+    return allowed_senders_from_env()
+
+
+MailSource = Annotated[EmailSource, Depends(get_email_source)]
+AllowedMailSenders = Annotated[set[str], Depends(get_allowed_mail_senders)]
+
+
+def _mail_item_payload(item: Any) -> dict[str, Any]:
+    return {
+        "item_id": item.item_id,
+        "message_uid": item.message_uid,
+        "sender": item.sender,
+        "subject": item.subject,
+        "filename": item.filename,
+        "attachment_sha256": item.attachment_sha256,
+        "received_at": item.received_at.isoformat(),
+        "status": item.status,
+        "valid_count": item.valid_count,
+        "error_count": item.error_count,
+        "batch_id": item.batch_id,
+        "error_code": item.error_code,
+        "error_message": item.error_message,
+        "created_at": item.created_at.isoformat(),
+    }
+
+
+def _validation_snapshot(report: ValidationReport) -> dict[str, Any]:
+    returned_errors = report.errors[:MAX_ERRORS_RETURNED]
+    return {
+        "filename": report.filename,
+        "total_rows": report.total_rows,
+        "valid_count": report.valid_count,
+        "error_count": report.error_count,
+        "errors_truncated": report.error_count > len(returned_errors),
+        "errors": [asdict(error) for error in returned_errors],
+        "preview": [
+            {**asdict(row), "eta_date": row.eta_date.isoformat()} for row in report.valid_rows[:20]
+        ],
+    }
+
+
+@router.post("/mail/poll", response_model=IngestMailPollResult)
+def poll_mail(
+    connection: WriteDb,
+    source: MailSource,
+    allowed_senders: AllowedMailSenders,
+) -> dict[str, int]:
+    try:
+        result = poll_mailbox(connection, source, allowed_senders)
+    except IngestError as error:
+        raise _http_error(error) from error
+    except Exception as error:
+        raise HTTPException(
+            status_code=502,
+            detail={"code": "mail_poll_failed", "message": "收取邮件失败，请检查邮件源配置"},
+        ) from error
+    return asdict(result)
+
+
+@router.get("/mail/items", response_model=list[IngestMailItem])
+def mail_items(connection: ReadDb) -> list[dict[str, Any]]:
+    return [_mail_item_payload(item) for item in list_mail_items(connection)]
+
+
+@router.get("/mail/items/{item_id}", response_model=IngestMailItemDetail)
+def mail_item_detail(item_id: str, connection: ReadDb) -> dict[str, Any]:
+    try:
+        item = get_mail_item(connection, item_id)
+        report = (
+            validate_mail_item(connection, item_id) if item.status == "pending_review" else None
+        )
+    except IngestError as error:
+        raise _http_error(error) from error
+    return {
+        **_mail_item_payload(item),
+        "fresh_report": _validation_snapshot(report) if report is not None else None,
+    }
+
+
+@router.post("/mail/items/{item_id}/confirm", response_model=IngestMailConfirmResult)
+def confirm_mail(item_id: str, connection: WriteDb) -> dict[str, Any]:
+    try:
+        batch_id, report = confirm_mail_item(connection, item_id)
+    except IngestError as error:
+        raise _http_error(error) from error
+    except Exception as error:
+        raise HTTPException(
+            status_code=409,
+            detail={"code": "mail_import_failed", "message": "邮件导入事务失败，未确认该条目"},
+        ) from error
+    return {
+        "batch_id": batch_id,
+        "row_count": report.valid_count,
+        "fresh_report": _validation_snapshot(report),
+    }
+
+
+@router.post("/mail/items/{item_id}/reject", response_model=IngestMailRejectResult)
+def reject_mail(item_id: str, connection: WriteDb) -> dict[str, str]:
+    try:
+        reject_mail_item(connection, item_id)
+    except IngestError as error:
+        raise _http_error(error) from error
+    return {"item_id": item_id, "status": "rejected"}
+
+
+@router.get("/mail/config", response_model=IngestMailConfig)
+def mail_config(source: MailSource, allowed_senders: AllowedMailSenders) -> dict[str, Any]:
+    poll_seconds = mail_poll_seconds_from_env()
+    return {
+        "source": "imap" if isinstance(source, ImapEmailSource) else "directory",
+        "scheduled_poll_enabled": poll_seconds > 0,
+        "poll_seconds": poll_seconds,
+        "allowed_senders_configured": bool(allowed_senders),
+    }
