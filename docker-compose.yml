@@ -1,0 +1,52 @@
+# Prerequisite: build data/chainpilot.duckdb on the host before starting; Kaggle
+# credentials stay on the host. The database is mounted read-write for ingest.
+# If Linux bind-mount writes fail, set CHAINPILOT_UID/CHAINPILOT_GID to the host
+# uid/gid before building so the non-root API user matches the host ownership.
+# Start:   docker compose up --build -d
+# Stop:    docker compose down
+# Rebuild: docker compose build --no-cache && docker compose up -d
+#
+# API requests are proxied by the Next.js server to the api service. Browsers only
+# connect to port 3000, so this container-to-container hop does not require CORS.
+
+services:
+  api:
+    build:
+      context: ./api
+      args:
+        APP_UID: "${CHAINPILOT_UID:-10001}"
+        APP_GID: "${CHAINPILOT_GID:-10001}"
+    env_file:
+      - path: ./.env
+        required: false
+    environment:
+      DUCKDB_PATH: /app/data/chainpilot.duckdb
+    volumes:
+      - ./data:/app/data
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health', timeout=2)
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./web
+      args:
+        API_ORIGIN: http://api:8000
+    environment:
+      API_ORIGIN: http://api:8000
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
